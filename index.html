@@ -4,127 +4,192 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Votación Eurovisión</title>
+  <title>Votación Eurovisión 2025</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f2f8;
-      color: #333;
-      padding: 2rem;
-    }
-    h1, h2 {
-      text-align: center;
-      color: #0057b7;
-    }
-    form {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: white;
-      padding: 2rem;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .country {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      background: #f9f9f9;
-      border-radius: 10px;
-      cursor: move;
-    }
-    .country img {
-      width: 40px;
-      height: auto;
-      margin-right: 1rem;
-      border-radius: 5px;
-    }
-    .country span {
-      flex-grow: 1;
-      font-size: 1.1rem;
-    }
-    input[type="hidden"], input[type="text"] {
-      font-size: 1rem;
-      padding: 0.5rem;
-      margin-bottom: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      width: 100%;
-    }
-    button {
-      background-color: #0057b7;
-      color: white;
-      border: none;
-      padding: 1rem;
-      font-size: 1rem;
-      border-radius: 10px;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 1rem;
-    }
-    button:hover {
-      background-color: #003f87;
-    }
-    #results {
-      max-width: 800px;
-      margin: 2rem auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      font-size: 1.1rem;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #eee;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f8; color: #333; padding: 2rem; }
+    h1, h2 { text-align: center; color: #0057b7; }
+    form { max-width: 800px; margin: 0 auto; background-color: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .country { display: flex; align-items: center; margin-bottom: 1rem; padding: 0.5rem; background: #f9f9f9; border-radius: 10px; cursor: move; }
+    .country img { width: 40px; height: auto; margin-right: 1rem; border-radius: 5px; }
+    .country span { flex-grow: 1; font-size: 1.1rem; }
+    input[type="hidden"], input[type="text"] { font-size: 1rem; padding: 0.5rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid #ccc; width: 100%; }
+    button { background-color: #0057b7; color: white; border: none; padding: 1rem; font-size: 1rem; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 1rem; }
+    button:hover { background-color: #003f87; }
+    #results { max-width: 800px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    ul { list-style: none; padding: 0; }
+    li { font-size: 1.1rem; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
   </style>
 </head>
 <body>
-  <h1>Votación Eurovisión</h1>
+  <h1>Votación Eurovisión 2025</h1>
   <form id="voteForm">
     <input type="text" id="name" placeholder="Tu nombre" required />
     <div id="countriesList">
-      <div class="country" draggable="true" data-country="Suecia">
-        <img src="https://flagcdn.com/w40/se.png" alt="Suecia" />
-        <span>Suecia</span>
-      </div>
-      <div class="country" draggable="true" data-country="Francia">
-        <img src="https://flagcdn.com/w40/fr.png" alt="Francia" />
-        <span>Francia</span>
-      </div>
-      <div class="country" draggable="true" data-country="Italia">
-        <img src="https://flagcdn.com/w40/it.png" alt="Italia" />
-        <span>Italia</span>
-      </div>
-      <div class="country" draggable="true" data-country="España">
-        <img src="https://flagcdn.com/w40/es.png" alt="España" />
-        <span>España</span>
-      </div>
-      <div class="country" draggable="true" data-country="Reino Unido">
-        <img src="https://flagcdn.com/w40/gb.png" alt="Reino Unido" />
-        <span>Reino Unido</span>
-      </div>
+      <div class="country" draggable="true" data-country="Albania">
+    <img src="https://flagcdn.com/w40/al.png" alt="Albania" />
+    <span>Albania – Zjerm</span>
+  </div>
+<div class="country" draggable="true" data-country="Alemania">
+    <img src="https://flagcdn.com/w40/de.png" alt="Alemania" />
+    <span>Alemania – Baller</span>
+  </div>
+<div class="country" draggable="true" data-country="Armenia">
+    <img src="https://flagcdn.com/w40/am.png" alt="Armenia" />
+    <span>Armenia – SURVIVOR</span>
+  </div>
+<div class="country" draggable="true" data-country="Australia">
+    <img src="https://flagcdn.com/w40/au.png" alt="Australia" />
+    <span>Australia – Milkshake Man</span>
+  </div>
+<div class="country" draggable="true" data-country="Austria">
+    <img src="https://flagcdn.com/w40/at.png" alt="Austria" />
+    <span>Austria – Wasted Love</span>
+  </div>
+<div class="country" draggable="true" data-country="Azerbaiyán">
+    <img src="https://flagcdn.com/w40/az.png" alt="Azerbaiyán" />
+    <span>Azerbaiyán – Run With U</span>
+  </div>
+<div class="country" draggable="true" data-country="Bélgica">
+    <img src="https://flagcdn.com/w40/be.png" alt="Bélgica" />
+    <span>Bélgica – Strobe Lights</span>
+  </div>
+<div class="country" draggable="true" data-country="Chequia">
+    <img src="https://flagcdn.com/w40/cz.png" alt="Chequia" />
+    <span>Chequia – Kiss Kiss Goodbye</span>
+  </div>
+<div class="country" draggable="true" data-country="Chipre">
+    <img src="https://flagcdn.com/w40/cy.png" alt="Chipre" />
+    <span>Chipre – Shh</span>
+  </div>
+<div class="country" draggable="true" data-country="Croacia">
+    <img src="https://flagcdn.com/w40/hr.png" alt="Croacia" />
+    <span>Croacia – Poison Cake</span>
+  </div>
+<div class="country" draggable="true" data-country="Dinamarca">
+    <img src="https://flagcdn.com/w40/dk.png" alt="Dinamarca" />
+    <span>Dinamarca – Hallucination</span>
+  </div>
+<div class="country" draggable="true" data-country="Eslovenia">
+    <img src="https://flagcdn.com/w40/si.png" alt="Eslovenia" />
+    <span>Eslovenia – How Much Time Do We Have Left?</span>
+  </div>
+<div class="country" draggable="true" data-country="España">
+    <img src="https://flagcdn.com/w40/es.png" alt="España" />
+    <span>España – Esa Diva</span>
+  </div>
+<div class="country" draggable="true" data-country="Estonia">
+    <img src="https://flagcdn.com/w40/ee.png" alt="Estonia" />
+    <span>Estonia – Espresso Macchiato</span>
+  </div>
+<div class="country" draggable="true" data-country="Finlandia">
+    <img src="https://flagcdn.com/w40/fi.png" alt="Finlandia" />
+    <span>Finlandia – ICH KOMME</span>
+  </div>
+<div class="country" draggable="true" data-country="Francia">
+    <img src="https://flagcdn.com/w40/fr.png" alt="Francia" />
+    <span>Francia – maman</span>
+  </div>
+<div class="country" draggable="true" data-country="Georgia">
+    <img src="https://flagcdn.com/w40/ge.png" alt="Georgia" />
+    <span>Georgia – Freedom</span>
+  </div>
+<div class="country" draggable="true" data-country="Grecia">
+    <img src="https://flagcdn.com/w40/gr.png" alt="Grecia" />
+    <span>Grecia – Asteromáta</span>
+  </div>
+<div class="country" draggable="true" data-country="Irlanda">
+    <img src="https://flagcdn.com/w40/ie.png" alt="Irlanda" />
+    <span>Irlanda – Laika Party</span>
+  </div>
+<div class="country" draggable="true" data-country="Islandia">
+    <img src="https://flagcdn.com/w40/is.png" alt="Islandia" />
+    <span>Islandia – RÓA</span>
+  </div>
+<div class="country" draggable="true" data-country="Israel">
+    <img src="https://flagcdn.com/w40/il.png" alt="Israel" />
+    <span>Israel – New Day Will Rise</span>
+  </div>
+<div class="country" draggable="true" data-country="Italia">
+    <img src="https://flagcdn.com/w40/it.png" alt="Italia" />
+    <span>Italia – Volevo essere un duro</span>
+  </div>
+<div class="country" draggable="true" data-country="Letonia">
+    <img src="https://flagcdn.com/w40/lv.png" alt="Letonia" />
+    <span>Letonia – Bur man laimi</span>
+  </div>
+<div class="country" draggable="true" data-country="Lituania">
+    <img src="https://flagcdn.com/w40/lt.png" alt="Lituania" />
+    <span>Lituania – Tavo Akys</span>
+  </div>
+<div class="country" draggable="true" data-country="Luxemburgo">
+    <img src="https://flagcdn.com/w40/lu.png" alt="Luxemburgo" />
+    <span>Luxemburgo – La Poupée Monte Le Son</span>
+  </div>
+<div class="country" draggable="true" data-country="Malta">
+    <img src="https://flagcdn.com/w40/mt.png" alt="Malta" />
+    <span>Malta – SERVING</span>
+  </div>
+<div class="country" draggable="true" data-country="Moldavia">
+    <img src="https://flagcdn.com/w40/md.png" alt="Moldavia" />
+    <span>Moldavia – </span>
+  </div>
+<div class="country" draggable="true" data-country="Montenegro">
+    <img src="https://flagcdn.com/w40/me.png" alt="Montenegro" />
+    <span>Montenegro – Dobrodošli</span>
+  </div>
+<div class="country" draggable="true" data-country="Noruega">
+    <img src="https://flagcdn.com/w40/no.png" alt="Noruega" />
+    <span>Noruega – Lighter</span>
+  </div>
+<div class="country" draggable="true" data-country="Países Bajos">
+    <img src="https://flagcdn.com/w40/nl.png" alt="Países Bajos" />
+    <span>Países Bajos – C'est la vie</span>
+  </div>
+<div class="country" draggable="true" data-country="Polonia">
+    <img src="https://flagcdn.com/w40/pl.png" alt="Polonia" />
+    <span>Polonia – GAJA</span>
+  </div>
+<div class="country" draggable="true" data-country="Portugal">
+    <img src="https://flagcdn.com/w40/pt.png" alt="Portugal" />
+    <span>Portugal – Deslocado</span>
+  </div>
+<div class="country" draggable="true" data-country="Reino Unido">
+    <img src="https://flagcdn.com/w40/gb.png" alt="Reino Unido" />
+    <span>Reino Unido – What The Hell Just Happened</span>
+  </div>
+<div class="country" draggable="true" data-country="San Marino">
+    <img src="https://flagcdn.com/w40/sm.png" alt="San Marino" />
+    <span>San Marino – Tutta L'Italia</span>
+  </div>
+<div class="country" draggable="true" data-country="Serbia">
+    <img src="https://flagcdn.com/w40/rs.png" alt="Serbia" />
+    <span>Serbia – Mila</span>
+  </div>
+<div class="country" draggable="true" data-country="Suecia">
+    <img src="https://flagcdn.com/w40/se.png" alt="Suecia" />
+    <span>Suecia – Bara Bada Bastu</span>
+  </div>
+<div class="country" draggable="true" data-country="Suiza">
+    <img src="https://flagcdn.com/w40/ch.png" alt="Suiza" />
+    <span>Suiza – Voyage</span>
+  </div>
+<div class="country" draggable="true" data-country="Ucrania">
+    <img src="https://flagcdn.com/w40/ua.png" alt="Ucrania" />
+    <span>Ucrania – Bird Of Pray</span>
+  </div>
     </div>
     <button type="submit">Enviar Votos</button>
   </form>
-
   <div id="results" style="display:none;">
     <h2>Tu Ranking</h2>
     <ul id="personalRanking"></ul>
     <h2>Ranking General</h2>
     <ul id="globalRanking"></ul>
   </div>
-
   <script>
     const countriesList = document.getElementById("countriesList");
     let dragItem = null;
     let globalScores = {};
-    let voters = 0;
 
     countriesList.addEventListener("dragstart", function(e) {
       dragItem = e.target;
@@ -143,12 +208,12 @@
       const name = document.getElementById("name").value.trim();
       if (!name) return;
 
-      const pointsList = [12, 10, 8, 7, 6];
+      const pointsList = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
       const personalRanking = document.getElementById("personalRanking");
       const globalRanking = document.getElementById("globalRanking");
 
       personalRanking.innerHTML = "";
-      [...countriesList.children].slice(0, 5).forEach((div, index) => {
+      [...countriesList.children].slice(0, 10).forEach((div, index) => {
         const country = div.dataset.country;
         const points = pointsList[index];
         const li = document.createElement("li");
@@ -166,7 +231,6 @@
           globalRanking.appendChild(li);
         });
 
-      voters++;
       document.getElementById("results").style.display = "block";
       document.getElementById("voteForm").reset();
     });
