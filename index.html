@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Votación Eurovisión - Fiesta</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 2rem;
+      background-color: #f4f6fc;
+      color: #222;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #0057b7;
+    }
+    form {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .country {
+      margin-bottom: 1.25rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      background-color: #0057b7;
+      color: white;
+      padding: 1rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #003f87;
+    }
+    #results {
+      max-width: 700px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 0.5rem;
+      font-size: 1.1rem;
+      border-bottom: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <h1>Votación Eurovisión</h1>
+  <form id="voteForm">
+    <div class="country">
+      <label for="name">Tu nombre</label>
+      <input type="text" id="name" name="name" required>
+    </div>
+    <div class="country">
+      <label for="sweden">Suecia</label>
+      <input type="number" id="sweden" name="Suecia" min="0" max="12">
+    </div>
+    <div class="country">
+      <label for="france">Francia</label>
+      <input type="number" id="france" name="Francia" min="0" max="12">
+    </div>
+    <div class="country">
+      <label for="italy">Italia</label>
+      <input type="number" id="italy" name="Italia" min="0" max="12">
+    </div>
+    <div class="country">
+      <label for="spain">España</label>
+      <input type="number" id="spain" name="España" min="0" max="12">
+    </div>
+    <div class="country">
+      <label for="uk">Reino Unido</label>
+      <input type="number" id="uk" name="Reino Unido" min="0" max="12">
+    </div>
+    <button type="submit">Enviar Votos</button>
+  </form>
+
+  <div id="results" style="display: none;">
+    <h2>Ranking Personal</h2>
+    <ul id="resultsList"></ul>
+    <h2 style="margin-top: 2rem;">Ranking General</h2>
+    <ul id="globalList"></ul>
+  </div>
+
+  <script>
+    const globalScores = {};
+    let voters = 0;
+
+    document.getElementById('voteForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const form = event.target;
+      const name = form.name.value.trim();
+      if (!name) return;
+      
+      const results = [];
+      for (const element of form.elements) {
+        if (element.type === 'number' && element.value) {
+          const points = parseInt(element.value, 10);
+          const country = element.name;
+          results.push({ country, points });
+          globalScores[country] = (globalScores[country] || 0) + points;
+        }
+      }
+      voters++;
+      results.sort((a, b) => b.points - a.points);
+
+      const resultsList = document.getElementById('resultsList');
+      resultsList.innerHTML = '';
+      results.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.country}: ${item.points} puntos`;
+        resultsList.appendChild(li);
+      });
+
+      // Global score
+      const globalList = document.getElementById('globalList');
+      globalList.innerHTML = '';
+      const sortedGlobal = Object.entries(globalScores)
+        .sort(([, a], [, b]) => b - a);
+      sortedGlobal.forEach(([country, points]) => {
+        const li = document.createElement('li');
+        li.textContent = `${country}: ${points} puntos (total)`;
+        globalList.appendChild(li);
+      });
+
+      document.getElementById('results').style.display = 'block';
+      form.reset();
+    });
+  </script>
+</body>
+</html>
