@@ -19,7 +19,20 @@
     ul { list-style: none; padding: 0; }
     li { font-size: 1.1rem; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
   </style>
+
+  <script>
+    // Guardar en localStorage al enviar votos
+    window.addEventListener("load", function () {
+      const savedVotes = localStorage.getItem("eurovisionVotes");
+      if (savedVotes) {
+        globalScores = JSON.parse(localStorage.getItem("globalScores") || "{}");
+        userVotes = JSON.parse(savedVotes);
+        updateGlobalRanking();
+      }
+    });
+  </script>
 </head>
+
 <body>
   <h1>Votación Eurovisión 2025</h1>
   <form id="voteForm">
@@ -205,7 +218,22 @@
 
     
     let userVotes = {};
+    
+    function updateGlobalRanking() {
+      const globalRanking = document.getElementById("globalRanking");
+      globalRanking.innerHTML = "";
+      Object.entries(globalScores)
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([country, points]) => {
+          const li = document.createElement("li");
+          li.textContent = `${country}: ${points} puntos totales`;
+          globalRanking.appendChild(li);
+        });
+      document.getElementById("results").style.display = "block";
+    }
+
     document.getElementById("voteForm").addEventListener("submit", function(e) {
+
 
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
@@ -247,7 +275,11 @@
         });
 
       document.getElementById("results").style.display = "block";
-      document.getElementById("voteForm").reset();
+      
+    localStorage.setItem("eurovisionVotes", JSON.stringify(userVotes));
+    localStorage.setItem("globalScores", JSON.stringify(globalScores));
+    updateGlobalRanking();
+
     });
   </script>
 </body>
