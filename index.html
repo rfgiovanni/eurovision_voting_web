@@ -2,60 +2,71 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Votación Eurovisión - Fiesta</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Votación Eurovisión</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f8;
+      color: #333;
       padding: 2rem;
-      background-color: #f4f6fc;
-      color: #222;
     }
     h1, h2 {
       text-align: center;
       color: #0057b7;
     }
     form {
-      max-width: 700px;
+      max-width: 800px;
       margin: 0 auto;
-      background: white;
+      background-color: white;
       padding: 2rem;
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
     .country {
-      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: #f9f9f9;
+      border-radius: 10px;
+      cursor: move;
     }
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: bold;
+    .country img {
+      width: 40px;
+      height: auto;
+      margin-right: 1rem;
+      border-radius: 5px;
     }
-    input[type="number"], input[type="text"] {
-      width: 100%;
-      padding: 0.6rem;
+    .country span {
+      flex-grow: 1;
+      font-size: 1.1rem;
+    }
+    input[type="hidden"], input[type="text"] {
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
       border-radius: 8px;
       border: 1px solid #ccc;
-      font-size: 1rem;
+      width: 100%;
     }
     button {
-      width: 100%;
       background-color: #0057b7;
       color: white;
-      padding: 1rem;
       border: none;
+      padding: 1rem;
+      font-size: 1rem;
       border-radius: 10px;
-      font-size: 1.1rem;
       cursor: pointer;
+      width: 100%;
       margin-top: 1rem;
-      transition: background 0.3s;
     }
     button:hover {
       background-color: #003f87;
     }
     #results {
-      max-width: 700px;
+      max-width: 800px;
       margin: 2rem auto;
       background: white;
       padding: 2rem;
@@ -67,8 +78,8 @@
       padding: 0;
     }
     li {
-      padding: 0.5rem;
       font-size: 1.1rem;
+      padding: 0.5rem 0;
       border-bottom: 1px solid #eee;
     }
   </style>
@@ -76,83 +87,88 @@
 <body>
   <h1>Votación Eurovisión</h1>
   <form id="voteForm">
-    <div class="country">
-      <label for="name">Tu nombre</label>
-      <input type="text" id="name" name="name" required>
-    </div>
-    <div class="country">
-      <label for="sweden">Suecia</label>
-      <input type="number" id="sweden" name="Suecia" min="0" max="12">
-    </div>
-    <div class="country">
-      <label for="france">Francia</label>
-      <input type="number" id="france" name="Francia" min="0" max="12">
-    </div>
-    <div class="country">
-      <label for="italy">Italia</label>
-      <input type="number" id="italy" name="Italia" min="0" max="12">
-    </div>
-    <div class="country">
-      <label for="spain">España</label>
-      <input type="number" id="spain" name="España" min="0" max="12">
-    </div>
-    <div class="country">
-      <label for="uk">Reino Unido</label>
-      <input type="number" id="uk" name="Reino Unido" min="0" max="12">
+    <input type="text" id="name" placeholder="Tu nombre" required />
+    <div id="countriesList">
+      <div class="country" draggable="true" data-country="Suecia">
+        <img src="https://flagcdn.com/w40/se.png" alt="Suecia" />
+        <span>Suecia</span>
+      </div>
+      <div class="country" draggable="true" data-country="Francia">
+        <img src="https://flagcdn.com/w40/fr.png" alt="Francia" />
+        <span>Francia</span>
+      </div>
+      <div class="country" draggable="true" data-country="Italia">
+        <img src="https://flagcdn.com/w40/it.png" alt="Italia" />
+        <span>Italia</span>
+      </div>
+      <div class="country" draggable="true" data-country="España">
+        <img src="https://flagcdn.com/w40/es.png" alt="España" />
+        <span>España</span>
+      </div>
+      <div class="country" draggable="true" data-country="Reino Unido">
+        <img src="https://flagcdn.com/w40/gb.png" alt="Reino Unido" />
+        <span>Reino Unido</span>
+      </div>
     </div>
     <button type="submit">Enviar Votos</button>
   </form>
 
-  <div id="results" style="display: none;">
-    <h2>Ranking Personal</h2>
-    <ul id="resultsList"></ul>
-    <h2 style="margin-top: 2rem;">Ranking General</h2>
-    <ul id="globalList"></ul>
+  <div id="results" style="display:none;">
+    <h2>Tu Ranking</h2>
+    <ul id="personalRanking"></ul>
+    <h2>Ranking General</h2>
+    <ul id="globalRanking"></ul>
   </div>
 
   <script>
-    const globalScores = {};
+    const countriesList = document.getElementById("countriesList");
+    let dragItem = null;
+    let globalScores = {};
     let voters = 0;
 
-    document.getElementById('voteForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      const form = event.target;
-      const name = form.name.value.trim();
-      if (!name) return;
-      
-      const results = [];
-      for (const element of form.elements) {
-        if (element.type === 'number' && element.value) {
-          const points = parseInt(element.value, 10);
-          const country = element.name;
-          results.push({ country, points });
-          globalScores[country] = (globalScores[country] || 0) + points;
-        }
+    countriesList.addEventListener("dragstart", function(e) {
+      dragItem = e.target;
+    });
+
+    countriesList.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      const afterElement = [...countriesList.children].find(el => e.clientY < el.getBoundingClientRect().top + el.clientHeight / 2);
+      if (afterElement && dragItem !== afterElement) {
+        countriesList.insertBefore(dragItem, afterElement);
       }
+    });
+
+    document.getElementById("voteForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      if (!name) return;
+
+      const pointsList = [12, 10, 8, 7, 6];
+      const personalRanking = document.getElementById("personalRanking");
+      const globalRanking = document.getElementById("globalRanking");
+
+      personalRanking.innerHTML = "";
+      [...countriesList.children].slice(0, 5).forEach((div, index) => {
+        const country = div.dataset.country;
+        const points = pointsList[index];
+        const li = document.createElement("li");
+        li.textContent = `${country}: ${points} puntos`;
+        personalRanking.appendChild(li);
+        globalScores[country] = (globalScores[country] || 0) + points;
+      });
+
+      globalRanking.innerHTML = "";
+      Object.entries(globalScores)
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([country, points]) => {
+          const li = document.createElement("li");
+          li.textContent = `${country}: ${points} puntos totales`;
+          globalRanking.appendChild(li);
+        });
+
       voters++;
-      results.sort((a, b) => b.points - a.points);
-
-      const resultsList = document.getElementById('resultsList');
-      resultsList.innerHTML = '';
-      results.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = `${item.country}: ${item.points} puntos`;
-        resultsList.appendChild(li);
-      });
-
-      // Global score
-      const globalList = document.getElementById('globalList');
-      globalList.innerHTML = '';
-      const sortedGlobal = Object.entries(globalScores)
-        .sort(([, a], [, b]) => b - a);
-      sortedGlobal.forEach(([country, points]) => {
-        const li = document.createElement('li');
-        li.textContent = `${country}: ${points} puntos (total)`;
-        globalList.appendChild(li);
-      });
-
-      document.getElementById('results').style.display = 'block';
-      form.reset();
+      document.getElementById("results").style.display = "block";
+      document.getElementById("voteForm").reset();
     });
   </script>
 </body>
