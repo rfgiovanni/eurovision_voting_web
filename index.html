@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Votación Eurovisión 2025</title>
   <style>
     body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f8; color: #333; padding: 2rem; }
@@ -203,22 +203,37 @@
       }
     });
 
+    
+    let userVotes = {};
     document.getElementById("voteForm").addEventListener("submit", function(e) {
+
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
-      if (!name) return;
+      
+    if (!name) return;
+    // Quitar votos anteriores del usuario si ya votó
+    if (userVotes[name]) {
+      userVotes[name].forEach(([country, points]) => {
+        globalScores[country] -= points;
+      });
+    }
+    
 
       const pointsList = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
       const personalRanking = document.getElementById("personalRanking");
       const globalRanking = document.getElementById("globalRanking");
 
-      personalRanking.innerHTML = "";
+      
+    personalRanking.innerHTML = "";
+    userVotes[name] = [];
+    
       [...countriesList.children].slice(0, 10).forEach((div, index) => {
         const country = div.dataset.country;
         const points = pointsList[index];
         const li = document.createElement("li");
         li.textContent = `${country}: ${points} puntos`;
         personalRanking.appendChild(li);
+        userVotes[name].push([country, points]);
         globalScores[country] = (globalScores[country] || 0) + points;
       });
 
