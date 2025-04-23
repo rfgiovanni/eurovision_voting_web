@@ -1,286 +1,651 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Votación Eurovisión 2025</title>
-  <style>
-    body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f8; color: #333; padding: 2rem; }
-    h1, h2 { text-align: center; color: #0057b7; }
-    form { max-width: 800px; margin: 0 auto; background-color: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    .country { display: flex; align-items: center; margin-bottom: 1rem; padding: 0.5rem; background: #f9f9f9; border-radius: 10px; cursor: move; }
-    .country img { width: 40px; height: auto; margin-right: 1rem; border-radius: 5px; }
-    .country span { flex-grow: 1; font-size: 1.1rem; }
-    input[type="hidden"], input[type="text"] { font-size: 1rem; padding: 0.5rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid #ccc; width: 100%; }
-    button { background-color: #0057b7; color: white; border: none; padding: 1rem; font-size: 1rem; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 1rem; }
-    button:hover { background-color: #003f87; }
-    #results { max-width: 800px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    ul { list-style: none; padding: 0; }
-    li { font-size: 1.1rem; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
-  </style>
-
-  <script>
-    // Guardar en localStorage al enviar votos
-    window.addEventListener("load", function () {
-      const savedVotes = localStorage.getItem("eurovisionVotes");
-      if (savedVotes) {
-        globalScores = JSON.parse(localStorage.getItem("globalScores") || "{}");
-        userVotes = JSON.parse(savedVotes);
-        updateGlobalRanking();
-      }
-    });
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votación Eurovisión 2025</title>
+    <style>
+        :root {
+            --primary: #1565c0;
+            --secondary: #0d47a1;
+            --background: #f5f5f5;
+            --card: #ffffff;
+            --text: #333333;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background);
+            color: var(--text);
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .intro {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .user-form {
+            background-color: var(--card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .country-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        
+        .country-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: var(--card);
+            border-radius: 6px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 8px;
+        }
+        
+        .country-item:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .country-flag {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .country-name {
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .selected-countries {
+            background-color: var(--card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .selected-countries h3 {
+            margin-top: 0;
+        }
+        
+        .selected-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        
+        .selected-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background-color: #e3f2fd;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+            margin-bottom: 8px;
+        }
+        
+        .country-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .points {
+            font-weight: bold;
+            color: var(--primary);
+            margin-left: auto;
+            margin-right: 10px;
+        }
+        
+        .button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        .button:hover {
+            background-color: var(--secondary);
+        }
+        
+        .results {
+            background-color: var(--card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .results-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        
+        .results-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background-color: #f5f5f5;
+            border-radius: 6px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .results-item:nth-child(1) {
+            background-color: #ffd700;
+            border-left-color: #ffd700;
+        }
+        
+        .results-item:nth-child(2) {
+            background-color: #c0c0c0;
+            border-left-color: #c0c0c0;
+        }
+        
+        .results-item:nth-child(3) {
+            background-color: #cd7f32;
+            border-left-color: #cd7f32;
+        }
+        
+        .total-points {
+            font-weight: bold;
+            margin-left: 1rem;
+        }
+        
+        .user-selector {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 0.75rem;
+            background-color: #e0e0e0;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .tab-button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .tab-button:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .tab-button:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+        
+        #voting-tab, #results-tab {
+            display: none;
+        }
+        
+        #voting-tab.active, #results-tab.active {
+            display: block;
+        }
+        
+        .remove-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .position-number {
+            display: inline-block;
+            width: 24px;
+            text-align: center;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            header {
+                padding: 1rem 0;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .user-form, .selected-countries, .results {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  <h1>Votación Eurovisión 2025</h1>
-  <form id="voteForm">
-    <input type="text" id="name" placeholder="Tu nombre" required />
-    <div id="countriesList">
-      <div class="country" draggable="true" data-country="Albania">
-    <img src="https://flagcdn.com/w40/al.png" alt="Albania" />
-    <span>Albania – Zjerm</span>
-  </div>
-<div class="country" draggable="true" data-country="Alemania">
-    <img src="https://flagcdn.com/w40/de.png" alt="Alemania" />
-    <span>Alemania – Baller</span>
-  </div>
-<div class="country" draggable="true" data-country="Armenia">
-    <img src="https://flagcdn.com/w40/am.png" alt="Armenia" />
-    <span>Armenia – SURVIVOR</span>
-  </div>
-<div class="country" draggable="true" data-country="Australia">
-    <img src="https://flagcdn.com/w40/au.png" alt="Australia" />
-    <span>Australia – Milkshake Man</span>
-  </div>
-<div class="country" draggable="true" data-country="Austria">
-    <img src="https://flagcdn.com/w40/at.png" alt="Austria" />
-    <span>Austria – Wasted Love</span>
-  </div>
-<div class="country" draggable="true" data-country="Azerbaiyán">
-    <img src="https://flagcdn.com/w40/az.png" alt="Azerbaiyán" />
-    <span>Azerbaiyán – Run With U</span>
-  </div>
-<div class="country" draggable="true" data-country="Bélgica">
-    <img src="https://flagcdn.com/w40/be.png" alt="Bélgica" />
-    <span>Bélgica – Strobe Lights</span>
-  </div>
-<div class="country" draggable="true" data-country="Chequia">
-    <img src="https://flagcdn.com/w40/cz.png" alt="Chequia" />
-    <span>Chequia – Kiss Kiss Goodbye</span>
-  </div>
-<div class="country" draggable="true" data-country="Chipre">
-    <img src="https://flagcdn.com/w40/cy.png" alt="Chipre" />
-    <span>Chipre – Shh</span>
-  </div>
-<div class="country" draggable="true" data-country="Croacia">
-    <img src="https://flagcdn.com/w40/hr.png" alt="Croacia" />
-    <span>Croacia – Poison Cake</span>
-  </div>
-<div class="country" draggable="true" data-country="Dinamarca">
-    <img src="https://flagcdn.com/w40/dk.png" alt="Dinamarca" />
-    <span>Dinamarca – Hallucination</span>
-  </div>
-<div class="country" draggable="true" data-country="Eslovenia">
-    <img src="https://flagcdn.com/w40/si.png" alt="Eslovenia" />
-    <span>Eslovenia – How Much Time Do We Have Left?</span>
-  </div>
-<div class="country" draggable="true" data-country="España">
-    <img src="https://flagcdn.com/w40/es.png" alt="España" />
-    <span>España – Esa Diva</span>
-  </div>
-<div class="country" draggable="true" data-country="Estonia">
-    <img src="https://flagcdn.com/w40/ee.png" alt="Estonia" />
-    <span>Estonia – Espresso Macchiato</span>
-  </div>
-<div class="country" draggable="true" data-country="Finlandia">
-    <img src="https://flagcdn.com/w40/fi.png" alt="Finlandia" />
-    <span>Finlandia – ICH KOMME</span>
-  </div>
-<div class="country" draggable="true" data-country="Francia">
-    <img src="https://flagcdn.com/w40/fr.png" alt="Francia" />
-    <span>Francia – maman</span>
-  </div>
-<div class="country" draggable="true" data-country="Georgia">
-    <img src="https://flagcdn.com/w40/ge.png" alt="Georgia" />
-    <span>Georgia – Freedom</span>
-  </div>
-<div class="country" draggable="true" data-country="Grecia">
-    <img src="https://flagcdn.com/w40/gr.png" alt="Grecia" />
-    <span>Grecia – Asteromáta</span>
-  </div>
-<div class="country" draggable="true" data-country="Irlanda">
-    <img src="https://flagcdn.com/w40/ie.png" alt="Irlanda" />
-    <span>Irlanda – Laika Party</span>
-  </div>
-<div class="country" draggable="true" data-country="Islandia">
-    <img src="https://flagcdn.com/w40/is.png" alt="Islandia" />
-    <span>Islandia – RÓA</span>
-  </div>
-<div class="country" draggable="true" data-country="Israel">
-    <img src="https://flagcdn.com/w40/il.png" alt="Israel" />
-    <span>Israel – New Day Will Rise</span>
-  </div>
-<div class="country" draggable="true" data-country="Italia">
-    <img src="https://flagcdn.com/w40/it.png" alt="Italia" />
-    <span>Italia – Volevo essere un duro</span>
-  </div>
-<div class="country" draggable="true" data-country="Letonia">
-    <img src="https://flagcdn.com/w40/lv.png" alt="Letonia" />
-    <span>Letonia – Bur man laimi</span>
-  </div>
-<div class="country" draggable="true" data-country="Lituania">
-    <img src="https://flagcdn.com/w40/lt.png" alt="Lituania" />
-    <span>Lituania – Tavo Akys</span>
-  </div>
-<div class="country" draggable="true" data-country="Luxemburgo">
-    <img src="https://flagcdn.com/w40/lu.png" alt="Luxemburgo" />
-    <span>Luxemburgo – La Poupée Monte Le Son</span>
-  </div>
-<div class="country" draggable="true" data-country="Malta">
-    <img src="https://flagcdn.com/w40/mt.png" alt="Malta" />
-    <span>Malta – SERVING</span>
-  </div>
-<div class="country" draggable="true" data-country="Moldavia">
-    <img src="https://flagcdn.com/w40/md.png" alt="Moldavia" />
-    <span>Moldavia – </span>
-  </div>
-<div class="country" draggable="true" data-country="Montenegro">
-    <img src="https://flagcdn.com/w40/me.png" alt="Montenegro" />
-    <span>Montenegro – Dobrodošli</span>
-  </div>
-<div class="country" draggable="true" data-country="Noruega">
-    <img src="https://flagcdn.com/w40/no.png" alt="Noruega" />
-    <span>Noruega – Lighter</span>
-  </div>
-<div class="country" draggable="true" data-country="Países Bajos">
-    <img src="https://flagcdn.com/w40/nl.png" alt="Países Bajos" />
-    <span>Países Bajos – C'est la vie</span>
-  </div>
-<div class="country" draggable="true" data-country="Polonia">
-    <img src="https://flagcdn.com/w40/pl.png" alt="Polonia" />
-    <span>Polonia – GAJA</span>
-  </div>
-<div class="country" draggable="true" data-country="Portugal">
-    <img src="https://flagcdn.com/w40/pt.png" alt="Portugal" />
-    <span>Portugal – Deslocado</span>
-  </div>
-<div class="country" draggable="true" data-country="Reino Unido">
-    <img src="https://flagcdn.com/w40/gb.png" alt="Reino Unido" />
-    <span>Reino Unido – What The Hell Just Happened</span>
-  </div>
-<div class="country" draggable="true" data-country="San Marino">
-    <img src="https://flagcdn.com/w40/sm.png" alt="San Marino" />
-    <span>San Marino – Tutta L'Italia</span>
-  </div>
-<div class="country" draggable="true" data-country="Serbia">
-    <img src="https://flagcdn.com/w40/rs.png" alt="Serbia" />
-    <span>Serbia – Mila</span>
-  </div>
-<div class="country" draggable="true" data-country="Suecia">
-    <img src="https://flagcdn.com/w40/se.png" alt="Suecia" />
-    <span>Suecia – Bara Bada Bastu</span>
-  </div>
-<div class="country" draggable="true" data-country="Suiza">
-    <img src="https://flagcdn.com/w40/ch.png" alt="Suiza" />
-    <span>Suiza – Voyage</span>
-  </div>
-<div class="country" draggable="true" data-country="Ucrania">
-    <img src="https://flagcdn.com/w40/ua.png" alt="Ucrania" />
-    <span>Ucrania – Bird Of Pray</span>
-  </div>
-    </div>
-    <button type="submit">Enviar Votos</button>
-  </form>
-  <div id="results" style="display:none;">
-    <h2>Tu Ranking</h2>
-    <ul id="personalRanking"></ul>
-    <h2>Ranking General</h2>
-    <ul id="globalRanking"></ul>
-  </div>
-  <script>
-    const countriesList = document.getElementById("countriesList");
-    let dragItem = null;
-    let globalScores = {};
-
-    countriesList.addEventListener("dragstart", function(e) {
-      dragItem = e.target;
-    });
-
-    countriesList.addEventListener("dragover", function(e) {
-      e.preventDefault();
-      const afterElement = [...countriesList.children].find(el => e.clientY < el.getBoundingClientRect().top + el.clientHeight / 2);
-      if (afterElement && dragItem !== afterElement) {
-        countriesList.insertBefore(dragItem, afterElement);
-      }
-    });
-
+    <header>
+        <h1>Votación Eurovisión 2025</h1>
+    </header>
     
-    let userVotes = {};
-    
-    function updateGlobalRanking() {
-      const globalRanking = document.getElementById("globalRanking");
-      globalRanking.innerHTML = "";
-      Object.entries(globalScores)
-        .sort(([, a], [, b]) => b - a)
-        .forEach(([country, points]) => {
-          const li = document.createElement("li");
-          li.textContent = `${country}: ${points} puntos totales`;
-          globalRanking.appendChild(li);
-        });
-      document.getElementById("results").style.display = "block";
-    }
+    <main>
+        <div class="intro">
+            <p>¡Vota por tus 10 canciones favoritas y crea vuestro ranking de Eurovisión 2025!</p>
+        </div>
+        
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="showTab('voting')">Votación</button>
+            <button class="tab-button" onclick="showTab('results')">Resultados</button>
+        </div>
+        
+        <div id="voting-tab" class="active">
+            <div class="panel">
+                <div class="user-form">
+                    <div class="user-selector">
+                        <label for="username">Tu nombre:</label>
+                        <input type="text" id="username" placeholder="Introduce tu nombre">
+                    </div>
+                    
+                    <h3>Selecciona tus países favoritos (máximo 10)</h3>
+                    <p>Haz clic en los países para añadirlos a tu top 10.</p>
+                    
+                    <div id="country-list" class="country-list">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+                
+                <div class="selected-countries">
+                    <h3>Tu Top 10</h3>
+                    <p>Usa los botones arriba/abajo para reordenar tus favoritos. El primero recibe 12 puntos, el segundo 10 puntos, etc.</p>
+                    
+                    <div id="selected-list" class="selected-list">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                    
+                    <button class="button" onclick="saveVotes()">Guardar mis votos</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="results-tab">
+            <div class="results">
+                <h2>Clasificación final</h2>
+                <p id="votes-count">0 personas han votado</p>
+                
+                <div id="results-list" class="results-list">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+                
+                <button class="button" onclick="resetVotes()">Reiniciar votación</button>
+            </div>
+        </div>
+    </main>
 
-    document.getElementById("voteForm").addEventListener("submit", function(e) {
+    <script>
+        // Datos de países participantes en Eurovisión 2025
+        const countries = [
+            { id: 1, name: "Albania", flag: "🇦🇱", song: "Título pendiente" },
+            { id: 2, name: "Alemania", flag: "🇩🇪", song: "Título pendiente" },
+            { id: 3, name: "Armenia", flag: "🇦🇲", song: "Título pendiente" },
+            { id: 4, name: "Australia", flag: "🇦🇺", song: "Título pendiente" },
+            { id: 5, name: "Austria", flag: "🇦🇹", song: "Título pendiente" },
+            { id: 6, name: "Azerbaiyán", flag: "🇦🇿", song: "Título pendiente" },
+            { id: 7, name: "Bélgica", flag: "🇧🇪", song: "Título pendiente" },
+            { id: 8, name: "Chipre", flag: "🇨🇾", song: "Título pendiente" },
+            { id: 9, name: "Croacia", flag: "🇭🇷", song: "Título pendiente" },
+            { id: 10, name: "Dinamarca", flag: "🇩🇰", song: "Título pendiente" },
+            { id: 11, name: "Eslovenia", flag: "🇸🇮", song: "Título pendiente" },
+            { id: 12, name: "España", flag: "🇪🇸", song: "Título pendiente" },
+            { id: 13, name: "Estonia", flag: "🇪🇪", song: "Título pendiente" },
+            { id: 14, name: "Finlandia", flag: "🇫🇮", song: "Título pendiente" },
+            { id: 15, name: "Francia", flag: "🇫🇷", song: "Título pendiente" },
+            { id: 16, name: "Georgia", flag: "🇬🇪", song: "Título pendiente" },
+            { id: 17, name: "Grecia", flag: "🇬🇷", song: "Título pendiente" },
+            { id: 18, name: "Irlanda", flag: "🇮🇪", song: "Título pendiente" },
+            { id: 19, name: "Islandia", flag: "🇮🇸", song: "Título pendiente" },
+            { id: 20, name: "Israel", flag: "🇮🇱", song: "Título pendiente" },
+            { id: 21, name: "Italia", flag: "🇮🇹", song: "Título pendiente" },
+            { id: 22, name: "Letonia", flag: "🇱🇻", song: "Título pendiente" },
+            { id: 23, name: "Lituania", flag: "🇱🇹", song: "Título pendiente" },
+            { id: 24, name: "Luxemburgo", flag: "🇱🇺", song: "Título pendiente" },
+            { id: 25, name: "Malta", flag: "🇲🇹", song: "Título pendiente" },
+            { id: 26, name: "Moldavia", flag: "🇲🇩", song: "Título pendiente" },
+            { id: 27, name: "Noruega", flag: "🇳🇴", song: "Título pendiente" },
+            { id: 28, name: "Países Bajos", flag: "🇳🇱", song: "Título pendiente" },
+            { id: 29, name: "Polonia", flag: "🇵🇱", song: "Título pendiente" },
+            { id: 30, name: "Portugal", flag: "🇵🇹", song: "Título pendiente" },
+            { id: 31, name: "Reino Unido", flag: "🇬🇧", song: "Título pendiente" },
+            { id: 32, name: "República Checa", flag: "🇨🇿", song: "Título pendiente" },
+            { id: 33, name: "Rumanía", flag: "🇷🇴", song: "Título pendiente" },
+            { id: 34, name: "San Marino", flag: "🇸🇲", song: "Título pendiente" },
+            { id: 35, name: "Serbia", flag: "🇷🇸", song: "Título pendiente" },
+            { id: 36, name: "Suecia", flag: "🇸🇪", song: "Título pendiente" },
+            { id: 37, name: "Suiza", flag: "🇨🇭", song: "Título pendiente" },
+            { id: 38, name: "Ucrania", flag: "🇺🇦", song: "Título pendiente" }
+        ];
 
-
-      e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      
-    if (!name) return;
-    // Quitar votos anteriores del usuario si ya votó
-    if (userVotes[name]) {
-      userVotes[name].forEach(([country, points]) => {
-        globalScores[country] -= points;
-      });
-    }
-    
-
-      const pointsList = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
-      const personalRanking = document.getElementById("personalRanking");
-      const globalRanking = document.getElementById("globalRanking");
-
-      
-    personalRanking.innerHTML = "";
-    userVotes[name] = [];
-    
-      [...countriesList.children].slice(0, 10).forEach((div, index) => {
-        const country = div.dataset.country;
-        const points = pointsList[index];
-        const li = document.createElement("li");
-        li.textContent = `${country}: ${points} puntos`;
-        personalRanking.appendChild(li);
-        userVotes[name].push([country, points]);
-        globalScores[country] = (globalScores[country] || 0) + points;
-      });
-
-      globalRanking.innerHTML = "";
-      Object.entries(globalScores)
-        .sort(([, a], [, b]) => b - a)
-        .forEach(([country, points]) => {
-          const li = document.createElement("li");
-          li.textContent = `${country}: ${points} puntos totales`;
-          globalRanking.appendChild(li);
-        });
-
-      document.getElementById("results").style.display = "block";
-      
-    localStorage.setItem("eurovisionVotes", JSON.stringify(userVotes));
-    localStorage.setItem("globalScores", JSON.stringify(globalScores));
-    updateGlobalRanking();
-
-    });
-  </script>
+        // Sistema de puntuación de Eurovisión
+        const pointsSystem = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
+        
+        // Variables globales
+        let selectedCountries = [];
+        let votes = [];
+        
+        // Cargar votos guardados
+        if (localStorage.getItem('eurovisionVotes')) {
+            try {
+                votes = JSON.parse(localStorage.getItem('eurovisionVotes'));
+            } catch (e) {
+                votes = [];
+            }
+        }
+        
+        // Inicializar la aplicación
+        window.onload = function() {
+            displayCountries();
+            updateSelectedList();
+            updateResults();
+        };
+        
+        // Mostrar la lista de países disponibles
+        function displayCountries() {
+            const countryListEl = document.getElementById('country-list');
+            countryListEl.innerHTML = '';
+            
+            countries.forEach(country => {
+                // Saltar si ya está seleccionado
+                if (selectedCountries.some(c => c.id === country.id)) {
+                    return;
+                }
+                
+                const countryEl = document.createElement('div');
+                countryEl.className = 'country-item';
+                countryEl.innerHTML = `
+                    <span class="country-flag">${country.flag}</span>
+                    <span class="country-name">${country.name}</span>
+                    <span>${country.song}</span>
+                `;
+                
+                countryEl.onclick = function() {
+                    selectCountry(country);
+                };
+                
+                countryListEl.appendChild(countryEl);
+            });
+        }
+        
+        // Agregar un país a la selección
+        function selectCountry(country) {
+            if (selectedCountries.length >= 10) {
+                alert('Ya has seleccionado 10 países. Quita alguno para añadir otro.');
+                return;
+            }
+            
+            selectedCountries.push(country);
+            updateSelectedList();
+            displayCountries();
+        }
+        
+        // Eliminar un país de la selección
+        function removeCountry(index) {
+            selectedCountries.splice(index, 1);
+            updateSelectedList();
+            displayCountries();
+        }
+        
+        // Mover un país arriba en la lista
+        function moveUp(index) {
+            if (index <= 0) return;
+            
+            const temp = selectedCountries[index];
+            selectedCountries[index] = selectedCountries[index - 1];
+            selectedCountries[index - 1] = temp;
+            
+            updateSelectedList();
+        }
+        
+        // Mover un país abajo en la lista
+        function moveDown(index) {
+            if (index >= selectedCountries.length - 1) return;
+            
+            const temp = selectedCountries[index];
+            selectedCountries[index] = selectedCountries[index + 1];
+            selectedCountries[index + 1] = temp;
+            
+            updateSelectedList();
+        }
+        
+        // Actualizar la lista de países seleccionados
+        function updateSelectedList() {
+            const selectedListEl = document.getElementById('selected-list');
+            selectedListEl.innerHTML = '';
+            
+            if (selectedCountries.length === 0) {
+                selectedListEl.innerHTML = '<p>No has seleccionado ningún país todavía.</p>';
+                return;
+            }
+            
+            selectedCountries.forEach((country, index) => {
+                const points = index < pointsSystem.length ? pointsSystem[index] : 0;
+                
+                const itemEl = document.createElement('div');
+                itemEl.className = 'selected-item';
+                itemEl.innerHTML = `
+                    <div class="country-info">
+                        <span class="position-number">${index + 1}</span>
+                        <span class="country-flag">${country.flag}</span>
+                        <span class="country-name">${country.name}</span>
+                        <span>${country.song}</span>
+                    </div>
+                    <span class="points">${points} pts</span>
+                    <div>
+                        <button onclick="moveUp(${index})" ${index === 0 ? 'disabled' : ''}>▲</button>
+                        <button onclick="moveDown(${index})" ${index === selectedCountries.length - 1 ? 'disabled' : ''}>▼</button>
+                        <button class="remove-btn" onclick="removeCountry(${index})">×</button>
+                    </div>
+                `;
+                
+                selectedListEl.appendChild(itemEl);
+            });
+        }
+        
+        // Cambiar entre pestañas
+        function showTab(tabName) {
+            // Ocultar todas las pestañas
+            document.getElementById('voting-tab').classList.remove('active');
+            document.getElementById('results-tab').classList.remove('active');
+            
+            // Mostrar la pestaña seleccionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Actualizar botones de pestañas
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Activar el botón correspondiente
+            event.target.classList.add('active');
+            
+            // Si se seleccionó la pestaña de resultados, actualizar
+            if (tabName === 'results') {
+                updateResults();
+            }
+        }
+        
+        // Guardar los votos del usuario
+        function saveVotes() {
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                alert('Por favor, introduce tu nombre.');
+                return;
+            }
+            
+            if (selectedCountries.length < 1) {
+                alert('Por favor, selecciona al menos un país.');
+                return;
+            }
+            
+            // Verificar si el usuario ya votó
+            const existingVoteIndex = votes.findIndex(v => v.username === username);
+            
+            const userVotes = selectedCountries.slice(0, 10).map((country, index) => {
+                return {
+                    countryId: country.id,
+                    points: index < pointsSystem.length ? pointsSystem[index] : 0
+                };
+            });
+            
+            const vote = {
+                username,
+                votes: userVotes
+            };
+            
+            if (existingVoteIndex >= 0) {
+                votes[existingVoteIndex] = vote;
+            } else {
+                votes.push(vote);
+            }
+            
+            // Guardar en localStorage
+            localStorage.setItem('eurovisionVotes', JSON.stringify(votes));
+            
+            alert('¡Tus votos han sido guardados!');
+            
+            // Cambiar a la pestaña de resultados
+            showTab('results');
+        }
+        
+        // Actualizar la tabla de resultados
+        function updateResults() {
+            const votesCountEl = document.getElementById('votes-count');
+            const resultsListEl = document.getElementById('results-list');
+            
+            votesCountEl.textContent = `${votes.length} ${votes.length === 1 ? 'persona ha votado' : 'personas han votado'}`;
+            
+            if (votes.length === 0) {
+                resultsListEl.innerHTML = '<p>Aún no hay votos. ¡Sé el primero en votar!</p>';
+                return;
+            }
+            
+            // Calcular puntos totales por país
+            const results = {};
+            
+            votes.forEach(vote => {
+                vote.votes.forEach(v => {
+                    if (!results[v.countryId]) {
+                        results[v.countryId] = 0;
+                    }
+                    results[v.countryId] += v.points;
+                });
+            });
+            
+            // Convertir a array y ordenar
+            const sortedResults = [];
+            
+            for (const countryId in results) {
+                const country = countries.find(c => c.id === parseInt(countryId));
+                sortedResults.push({
+                    country: country,
+                    points: results[countryId]
+                });
+            }
+            
+            sortedResults.sort((a, b) => b.points - a.points);
+            
+            // Renderizar resultados
+            resultsListEl.innerHTML = '';
+            
+            sortedResults.forEach((result, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'results-item';
+                itemEl.innerHTML = `
+                    <div class="country-info">
+                        <span class="position-number">${index + 1}</span>
+                        <span class="country-flag">${result.country.flag}</span>
+                        <span class="country-name">${result.country.name}</span>
+                        <span>${result.country.song}</span>
+                    </div>
+                    <span class="total-points">${result.points} pts</span>
+                `;
+                
+                resultsListEl.appendChild(itemEl);
+            });
+        }
+        
+        // Reiniciar la votación
+        function resetVotes() {
+            if (confirm('¿Estás seguro de que quieres reiniciar la votación? Se borrarán todos los votos.')) {
+                votes = [];
+                localStorage.setItem('eurovisionVotes', JSON.stringify(votes));
+                updateResults();
+                alert('Votación reiniciada correctamente.');
+            }
+        }
+    </script>
 </body>
 </html>
