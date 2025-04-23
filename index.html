@@ -170,8 +170,6 @@
             transition: background-color 0.2s;
             width: 100%;
             touch-action: manipulation;
-            -webkit-appearance: none;
-            appearance: none;
         }
         
         .button:hover {
@@ -311,99 +309,6 @@
             flex-shrink: 0;
         }
         
-        /* Login Overlay */
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .login-container {
-            background-color: var(--card);
-            border-radius: 8px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-        
-        .login-container h2 {
-            margin-top: 0;
-            text-align: center;
-            color: var(--primary);
-        }
-        
-        .login-logo {
-            font-size: 4rem;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        
-        .user-votes-accordion {
-            margin-top: 2rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        
-        .user-votes-toggle {
-            background-color: #f1f1f1;
-            padding: 1rem;
-            width: 100%;
-            text-align: left;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .user-votes-toggle:after {
-            content: '+';
-            font-size: 1.2rem;
-        }
-        
-        .user-votes-toggle.active:after {
-            content: '-';
-        }
-        
-        .user-votes-panel {
-            padding: 0 1rem;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.2s ease-out;
-        }
-        
-        .user-vote-details {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .user-vote-details:last-child {
-            border-bottom: none;
-        }
-        
-        .individual-votes-list {
-            list-style: none;
-            padding-left: 0;
-            margin: 0.5rem 0;
-        }
-        
-        .individual-vote-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.3rem 0;
-            font-size: 0.9rem;
-        }
-        
         @media (max-width: 600px) {
             header {
                 padding: 1rem 0;
@@ -428,29 +333,6 @@
     </style>
 </head>
 <body>
-    <!-- Login Overlay -->
-    <div class="login-overlay" id="login-overlay">
-        <div class="login-container">
-            <div class="login-logo">🎤</div>
-            <h2>Acceso a Votación Eurovisión 2025</h2>
-            <p>Introduzca el código de acceso para continuar:</p>
-            <input type="password" id="access-code" placeholder="Código de acceso">
-            <button class="button" id="access-submit">Acceder</button>
-        </div>
-    </div>
-    
-    <!-- Results Access Overlay -->
-    <div class="login-overlay" id="results-access-overlay" style="display: none;">
-        <div class="login-container">
-            <div class="login-logo">🏆</div>
-            <h2>Acceso a Resultados</h2>
-            <p>Introduzca el código para ver los resultados:</p>
-            <input type="password" id="results-code" placeholder="Código de resultados">
-            <button class="button" id="results-submit">Ver resultados</button>
-            <button class="button" style="margin-top: 10px; background-color: #ccc; color: #333;" id="cancel-results-access">Cancelar</button>
-        </div>
-    </div>
-    
     <header>
         <h1>Votación Eurovisión 2025</h1>
     </header>
@@ -462,7 +344,7 @@
         
         <div class="tab-buttons">
             <button class="tab-button active" data-tab="voting">Votación</button>
-            <button class="tab-button" data-tab="results" id="results-tab-button">Resultados</button>
+            <button class="tab-button" data-tab="results">Resultados</button>
         </div>
         
         <div class="tab-content active" id="voting-tab">
@@ -502,13 +384,6 @@
                 <ul class="results-list" id="results-list">
                     <!-- Se llenará dinámicamente -->
                 </ul>
-                
-                <div id="individual-results">
-                    <h3>Votos individuales</h3>
-                    <div id="individual-votes-container">
-                        <!-- Se llenará dinámicamente -->
-                    </div>
-                </div>
                 
                 <button class="button" id="reset-votes">Reiniciar votación</button>
             </div>
@@ -561,25 +436,11 @@
         // Sistema de puntuación de Eurovisión
         const pointsSystem = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
         
-        // Códigos de acceso
-        const ACCESS_CODE = "yugoslavia";
-        const RESULTS_CODE = "macedonia";
-        
         // Variables globales
         let selectedCountries = [];
         let votes = JSON.parse(localStorage.getItem('eurovisionVotes')) || [];
-        let isLoggedIn = false;
-        let resultsAccessGranted = false;
         
         // Elementos DOM
-        const loginOverlay = document.getElementById('login-overlay');
-        const resultsAccessOverlay = document.getElementById('results-access-overlay');
-        const accessCodeInput = document.getElementById('access-code');
-        const accessSubmitBtn = document.getElementById('access-submit');
-        const resultsCodeInput = document.getElementById('results-code');
-        const resultsSubmitBtn = document.getElementById('results-submit');
-        const cancelResultsAccessBtn = document.getElementById('cancel-results-access');
-        
         const countryGrid = document.getElementById('country-grid');
         const selectedList = document.getElementById('selected-list');
         const usernameInput = document.getElementById('username');
@@ -589,81 +450,16 @@
         const votesCount = document.getElementById('votes-count');
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
-        const resultsTabButton = document.getElementById('results-tab-button');
-        const individualVotesContainer = document.getElementById('individual-votes-container');
         
         // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', function() {
-            initAuth();
             initApp();
         });
-        
-        // Autenticación
-        function initAuth() {
-            // Verificar si ya estamos autenticados en esta sesión
-            isLoggedIn = sessionStorage.getItem('eurovisionLoggedIn') === 'true';
-            resultsAccessGranted = sessionStorage.getItem('eurovisionResultsAccess') === 'true';
-            
-            if (isLoggedIn) {
-                loginOverlay.style.display = 'none';
-            }
-            
-            // Configurar eventos de autenticación
-            accessSubmitBtn.addEventListener('click', function() {
-                const inputCode = accessCodeInput.value.trim().toLowerCase();
-                if (inputCode === ACCESS_CODE) {
-                    isLoggedIn = true;
-                    sessionStorage.setItem('eurovisionLoggedIn', 'true');
-                    loginOverlay.style.display = 'none';
-                } else {
-                    alert('Código incorrecto. Inténtalo de nuevo.');
-                    accessCodeInput.value = '';
-                }
-            });
-            
-            accessCodeInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    accessSubmitBtn.click();
-                }
-            });
-            
-            // Configurar eventos para acceso a resultados
-            resultsTabButton.addEventListener('click', function() {
-                if (!resultsAccessGranted) {
-                    // Mostrar overlay de acceso a resultados
-                    resultsAccessOverlay.style.display = 'flex';
-                    return;
-                }
-            });
-            
-            resultsSubmitBtn.addEventListener('click', function() {
-                const inputCode = resultsCodeInput.value.trim().toLowerCase();
-                if (inputCode === RESULTS_CODE) {
-                    resultsAccessGranted = true;
-                    sessionStorage.setItem('eurovisionResultsAccess', 'true');
-                    resultsAccessOverlay.style.display = 'none';
-                    tabButtons[1].click(); // Activar pestaña de resultados
-                } else {
-                    alert('Código de resultados incorrecto. Inténtalo de nuevo.');
-                    resultsCodeInput.value = '';
-                }
-            });
-            
-            resultsCodeInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    resultsSubmitBtn.click();
-                }
-            });
-            
-            cancelResultsAccessBtn.addEventListener('click', function() {
-                resultsAccessOverlay.style.display = 'none';
-                tabButtons[0].click(); // Volver a la pestaña de votación
-            });
-        }
         
         function initApp() {
             renderCountryGrid();
             renderSelectedList();
+            renderResults();
             setupEventListeners();
         }
         
@@ -672,12 +468,6 @@
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const tab = button.dataset.tab;
-                    
-                    // Si se hace clic en la pestaña de resultados y no hay acceso
-                    if (tab === 'results' && !resultsAccessGranted) {
-                        resultsAccessOverlay.style.display = 'flex';
-                        return;
-                    }
                     
                     tabButtons.forEach(btn => btn.classList.remove('active'));
                     tabContents.forEach(content => content.classList.remove('active'));
@@ -691,12 +481,10 @@
                 });
             });
             
-            // Enviar votos - Usar 'touchstart' y 'click' para asegurar compatibilidad móvil
-            submitButton.addEventListener('touchstart', saveVotes);
+            // Enviar votos
             submitButton.addEventListener('click', saveVotes);
             
             // Reiniciar votación
-            resetButton.addEventListener('touchstart', resetVotes);
             resetButton.addEventListener('click', resetVotes);
         }
         
@@ -810,5 +598,106 @@
             this.classList.remove('dragging');
         }
         
-        function saveVotes(e) {
-            //
+        function saveVotes() {
+            const username = usernameInput.value.trim();
+            
+            if (!username) {
+                alert('Por favor, introduce tu nombre.');
+                return;
+            }
+            
+            if (selectedCountries.length < 1) {
+                alert('Por favor, selecciona al menos un país.');
+                return;
+            }
+            
+            // Check if user already voted
+            const existingVoteIndex = votes.findIndex(v => v.username === username);
+            
+            const userVotes = selectedCountries.slice(0, 10).map((country, index) => {
+                return {
+                    countryId: country.id,
+                    points: index < pointsSystem.length ? pointsSystem[index] : 0
+                };
+            });
+            
+            const vote = {
+                username,
+                votes: userVotes
+            };
+            
+            if (existingVoteIndex >= 0) {
+                votes[existingVoteIndex] = vote;
+            } else {
+                votes.push(vote);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('eurovisionVotes', JSON.stringify(votes));
+            
+            alert('¡Tus votos han sido guardados!');
+            
+            // Switch to results tab
+            tabButtons[1].click();
+        }
+        
+        function renderResults() {
+            document.querySelector('.results').style.display = 'block';
+            votesCount.textContent = `${votes.length} ${votes.length === 1 ? 'persona ha votado' : 'personas han votado'}`;
+            
+            if (votes.length === 0) {
+                resultsList.innerHTML = '<p>Aún no hay votos. ¡Sé el primero en votar!</p>';
+                return;
+            }
+            
+            // Calculate total points per country
+            const results = {};
+            
+            votes.forEach(vote => {
+                vote.votes.forEach(v => {
+                    if (!results[v.countryId]) {
+                        results[v.countryId] = 0;
+                    }
+                    results[v.countryId] += v.points;
+                });
+            });
+            
+            // Convert to array and sort
+            const sortedResults = Object.entries(results)
+                .map(([countryId, points]) => {
+                    const country = countries.find(c => c.id === parseInt(countryId));
+                    return { country, points };
+                })
+                .sort((a, b) => b.points - a.points);
+            
+            // Render results
+            resultsList.innerHTML = '';
+            sortedResults.forEach((result, index) => {
+                const li = document.createElement('li');
+                li.className = 'results-item';
+                li.innerHTML = `
+                    <div class="country-info">
+                        <span class="position">${index + 1}.</span>
+                        <span class="country-flag">${result.country.flag}</span>
+                        <strong class="country-name">${result.country.name}</strong> <span class="song-title">${result.country.song}</span>
+                    </div>
+                    <div class="total-points">${result.points} pts</div>
+                `;
+                resultsList.appendChild(li);
+            });
+        }
+        
+        function resetVotes() {
+            if (confirm('¿Estás seguro de que quieres reiniciar la votación? Se borrarán todos los votos.')) {
+                votes = [];
+                localStorage.setItem('eurovisionVotes', JSON.stringify(votes));
+                renderResults();
+                alert('Votación reiniciada correctamente.');
+            }
+        }
+
+        // Iniciar la aplicación inmediatamente
+        initApp();
+    </script>
+</body>
+</html>
