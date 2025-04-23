@@ -59,42 +59,43 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        .country-list {
-            list-style: none;
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
             padding: 0;
             margin: 1rem 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
         }
         
-        .country-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem;
+        .country-card {
             background-color: var(--card);
             border-radius: 6px;
-            border-left: 5px solid var(--primary);
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 10px;
+            text-align: center;
             cursor: pointer;
-            user-select: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-top: 3px solid var(--primary);
         }
         
-        .country-item.selected {
-            background-color: #e3f2fd;
-            box-shadow: 0 1px 5px rgba(21, 101, 192, 0.3);
-        }
-        
-        .country-item.dragging {
-            opacity: 0.5;
+        .country-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .country-flag {
-            width: 30px;
-            height: 20px;
-            margin-right: 10px;
-            object-fit: cover;
-            display: inline-block;
+            font-size: 24px;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .song-title {
+            font-style: italic;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 5px 0 0;
         }
         
         .selected-countries {
@@ -134,9 +135,14 @@
             gap: 10px;
         }
         
+        .country-info .song-title {
+            margin: 0;
+        }
+        
         .points {
             font-weight: bold;
             color: var(--primary);
+            padding-left: 10px;
         }
         
         .button {
@@ -270,6 +276,20 @@
             font-weight: bold;
         }
         
+        .position-badge {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            margin-right: 8px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        
         @media (max-width: 600px) {
             header {
                 padding: 1rem 0;
@@ -281,6 +301,10 @@
             
             .user-form, .selected-countries, .results {
                 padding: 1rem;
+            }
+            
+            .country-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
         }
     </style>
@@ -308,12 +332,12 @@
                         <input type="text" id="username" placeholder="Introduce tu nombre">
                     </div>
                     
-                    <h3>Selecciona tus países favoritos (máximo 10)</h3>
-                    <p>Haz clic en los países para añadirlos a tu top 10.</p>
+                    <h3>Selecciona tus canciones favoritas (máximo 10)</h3>
+                    <p>Haz clic en las canciones para añadirlas a tu top 10.</p>
                     
-                    <ul class="country-list" id="country-list">
+                    <div class="country-grid" id="country-grid">
                         <!-- Se llenará dinámicamente -->
-                    </ul>
+                    </div>
                 </div>
                 
                 <div class="selected-countries">
@@ -394,7 +418,7 @@
         let votes = JSON.parse(localStorage.getItem('eurovisionVotes')) || [];
         
         // Elementos DOM
-        const countryList = document.getElementById('country-list');
+        const countryGrid = document.getElementById('country-grid');
         const selectedList = document.getElementById('selected-list');
         const usernameInput = document.getElementById('username');
         const submitButton = document.getElementById('submit-votes');
@@ -410,7 +434,7 @@
         });
         
         function initApp() {
-            renderCountryList();
+            renderCountryGrid();
             renderSelectedList();
             renderResults();
             setupEventListeners();
@@ -441,24 +465,22 @@
             resetButton.addEventListener('click', resetVotes);
         }
         
-        function renderCountryList() {
-            countryList.innerHTML = '';
+        function renderCountryGrid() {
+            countryGrid.innerHTML = '';
             
             countries.forEach(country => {
                 // Skip if already selected
                 if (selectedCountries.some(c => c.id === country.id)) return;
                 
-                const li = document.createElement('li');
-                li.className = 'country-item';
-                li.dataset.id = country.id;
-                li.innerHTML = `
-                    <span class="country-info">
-                        <span class="country-flag">${country.flag}</span>
-                        <strong>${country.name}</strong> - ${country.song}
-                    </span>
+                const card = document.createElement('div');
+                card.className = 'country-card';
+                card.dataset.id = country.id;
+                card.innerHTML = `
+                    <span class="country-flag">${country.flag}</span>
+                    <p class="song-title">${country.song}</p>
                 `;
                 
-                li.addEventListener('click', () => {
+                card.addEventListener('click', () => {
                     if (selectedCountries.length < 10) {
                         addCountryToSelection(country);
                     } else {
@@ -466,7 +488,7 @@
                     }
                 });
                 
-                countryList.appendChild(li);
+                countryGrid.appendChild(card);
             });
         }
         
@@ -481,8 +503,9 @@
                 
                 li.innerHTML = `
                     <div class="country-info">
+                        <span class="position-badge">${index + 1}</span>
                         <span class="country-flag">${country.flag}</span>
-                        <strong>${country.name}</strong> - ${country.song}
+                        <strong>${country.name}</strong> - <span class="song-title">${country.song}</span>
                     </div>
                     <div class="points">${index < pointsSystem.length ? pointsSystem[index] + ' pts' : '0 pts'}</div>
                     <button class="remove-btn">×</button>
@@ -505,13 +528,13 @@
         
         function addCountryToSelection(country) {
             selectedCountries.push(country);
-            renderCountryList();
+            renderCountryGrid();
             renderSelectedList();
         }
         
         function removeCountryFromSelection(countryId) {
             selectedCountries = selectedCountries.filter(c => c.id !== countryId);
-            renderCountryList();
+            renderCountryGrid();
             renderSelectedList();
         }
         
@@ -633,7 +656,7 @@
                     <div class="country-info">
                         <span class="position">${index + 1}.</span>
                         <span class="country-flag">${result.country.flag}</span>
-                        <strong>${result.country.name}</strong> - ${result.country.song}
+                        <strong>${result.country.name}</strong> - <span class="song-title">${result.country.song}</span>
                     </div>
                     <div class="total-points">${result.points} pts</div>
                 `;
