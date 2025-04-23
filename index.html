@@ -63,6 +63,9 @@
             list-style: none;
             padding: 0;
             margin: 1rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
         
         .country-item {
@@ -75,21 +78,23 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             cursor: pointer;
             user-select: none;
-            margin-bottom: 8px;
         }
         
-        .country-item:hover {
+        .country-item.selected {
             background-color: #e3f2fd;
+            box-shadow: 0 1px 5px rgba(21, 101, 192, 0.3);
+        }
+        
+        .country-item.dragging {
+            opacity: 0.5;
         }
         
         .country-flag {
-            font-size: 1.5rem;
+            width: 30px;
+            height: 20px;
             margin-right: 10px;
-        }
-        
-        .country-name {
-            font-weight: bold;
-            margin-right: 8px;
+            object-fit: cover;
+            display: inline-block;
         }
         
         .selected-countries {
@@ -107,6 +112,9 @@
             list-style: none;
             padding: 0;
             margin: 1rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
         
         .selected-item {
@@ -118,19 +126,17 @@
             border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             position: relative;
-            margin-bottom: 8px;
         }
         
         .country-info {
             display: flex;
             align-items: center;
+            gap: 10px;
         }
         
         .points {
             font-weight: bold;
             color: var(--primary);
-            margin-left: auto;
-            margin-right: 10px;
         }
         
         .button {
@@ -156,6 +162,7 @@
             padding: 1.5rem;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
         }
         
         .results-list {
@@ -240,11 +247,11 @@
             border-radius: 0 4px 4px 0;
         }
         
-        #voting-tab, #results-tab {
+        .tab-content {
             display: none;
         }
         
-        #voting-tab.active, #results-tab.active {
+        .tab-content.active {
             display: block;
         }
         
@@ -261,14 +268,6 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
-        }
-        
-        .position-number {
-            display: inline-block;
-            width: 24px;
-            text-align: center;
-            font-weight: bold;
-            margin-right: 8px;
         }
         
         @media (max-width: 600px) {
@@ -297,11 +296,11 @@
         </div>
         
         <div class="tab-buttons">
-            <button class="tab-button active" onclick="showTab('voting')">Votación</button>
-            <button class="tab-button" onclick="showTab('results')">Resultados</button>
+            <button class="tab-button active" data-tab="voting">Votación</button>
+            <button class="tab-button" data-tab="results">Resultados</button>
         </div>
         
-        <div id="voting-tab" class="active">
+        <div class="tab-content active" id="voting-tab">
             <div class="panel">
                 <div class="user-form">
                     <div class="user-selector">
@@ -312,34 +311,34 @@
                     <h3>Selecciona tus países favoritos (máximo 10)</h3>
                     <p>Haz clic en los países para añadirlos a tu top 10.</p>
                     
-                    <div id="country-list" class="country-list">
+                    <ul class="country-list" id="country-list">
                         <!-- Se llenará dinámicamente -->
-                    </div>
+                    </ul>
                 </div>
                 
                 <div class="selected-countries">
                     <h3>Tu Top 10</h3>
-                    <p>Usa los botones arriba/abajo para reordenar tus favoritos. El primero recibe 12 puntos, el segundo 10 puntos, etc.</p>
+                    <p>Arrastra para reordenar tus favoritos. El primero recibe 12 puntos, el segundo 10 puntos, etc.</p>
                     
-                    <div id="selected-list" class="selected-list">
+                    <ul class="selected-list" id="selected-list">
                         <!-- Se llenará dinámicamente -->
-                    </div>
+                    </ul>
                     
-                    <button class="button" onclick="saveVotes()">Guardar mis votos</button>
+                    <button class="button" id="submit-votes">Guardar mis votos</button>
                 </div>
             </div>
         </div>
         
-        <div id="results-tab">
+        <div class="tab-content" id="results-tab">
             <div class="results">
                 <h2>Clasificación final</h2>
                 <p id="votes-count">0 personas han votado</p>
                 
-                <div id="results-list" class="results-list">
+                <ul class="results-list" id="results-list">
                     <!-- Se llenará dinámicamente -->
-                </div>
+                </ul>
                 
-                <button class="button" onclick="resetVotes()">Reiniciar votación</button>
+                <button class="button" id="reset-votes">Reiniciar votación</button>
             </div>
         </div>
     </main>
@@ -392,153 +391,169 @@
         
         // Variables globales
         let selectedCountries = [];
-        let votes = [];
+        let votes = JSON.parse(localStorage.getItem('eurovisionVotes')) || [];
         
-        // Cargar votos guardados
-        if (localStorage.getItem('eurovisionVotes')) {
-            try {
-                votes = JSON.parse(localStorage.getItem('eurovisionVotes'));
-            } catch (e) {
-                votes = [];
-            }
-        }
+        // Elementos DOM
+        const countryList = document.getElementById('country-list');
+        const selectedList = document.getElementById('selected-list');
+        const usernameInput = document.getElementById('username');
+        const submitButton = document.getElementById('submit-votes');
+        const resetButton = document.getElementById('reset-votes');
+        const resultsList = document.getElementById('results-list');
+        const votesCount = document.getElementById('votes-count');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
         
         // Inicializar la aplicación
-        window.onload = function() {
-            displayCountries();
-            updateSelectedList();
-            updateResults();
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
         
-        // Mostrar la lista de países disponibles
-        function displayCountries() {
-            const countryListEl = document.getElementById('country-list');
-            countryListEl.innerHTML = '';
+        function initApp() {
+            renderCountryList();
+            renderSelectedList();
+            renderResults();
+            setupEventListeners();
+        }
+        
+        function setupEventListeners() {
+            // Eventos para la navegación por pestañas
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.dataset.tab;
+                    
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    button.classList.add('active');
+                    document.getElementById(`${tab}-tab`).classList.add('active');
+                    
+                    if (tab === 'results') {
+                        renderResults();
+                    }
+                });
+            });
+            
+            // Enviar votos
+            submitButton.addEventListener('click', saveVotes);
+            
+            // Reiniciar votación
+            resetButton.addEventListener('click', resetVotes);
+        }
+        
+        function renderCountryList() {
+            countryList.innerHTML = '';
             
             countries.forEach(country => {
-                // Saltar si ya está seleccionado
-                if (selectedCountries.some(c => c.id === country.id)) {
-                    return;
-                }
+                // Skip if already selected
+                if (selectedCountries.some(c => c.id === country.id)) return;
                 
-                const countryEl = document.createElement('div');
-                countryEl.className = 'country-item';
-                countryEl.innerHTML = `
-                    <span class="country-flag">${country.flag}</span>
-                    <span class="country-name">${country.name}</span>
-                    <span>${country.song}</span>
+                const li = document.createElement('li');
+                li.className = 'country-item';
+                li.dataset.id = country.id;
+                li.innerHTML = `
+                    <span class="country-info">
+                        <span class="country-flag">${country.flag}</span>
+                        <strong>${country.name}</strong> - ${country.song}
+                    </span>
                 `;
                 
-                countryEl.onclick = function() {
-                    selectCountry(country);
-                };
+                li.addEventListener('click', () => {
+                    if (selectedCountries.length < 10) {
+                        addCountryToSelection(country);
+                    } else {
+                        alert('Ya has seleccionado 10 países. Quita alguno para añadir otro.');
+                    }
+                });
                 
-                countryListEl.appendChild(countryEl);
+                countryList.appendChild(li);
             });
         }
         
-        // Agregar un país a la selección
-        function selectCountry(country) {
-            if (selectedCountries.length >= 10) {
-                alert('Ya has seleccionado 10 países. Quita alguno para añadir otro.');
-                return;
-            }
-            
-            selectedCountries.push(country);
-            updateSelectedList();
-            displayCountries();
-        }
-        
-        // Eliminar un país de la selección
-        function removeCountry(index) {
-            selectedCountries.splice(index, 1);
-            updateSelectedList();
-            displayCountries();
-        }
-        
-        // Mover un país arriba en la lista
-        function moveUp(index) {
-            if (index <= 0) return;
-            
-            const temp = selectedCountries[index];
-            selectedCountries[index] = selectedCountries[index - 1];
-            selectedCountries[index - 1] = temp;
-            
-            updateSelectedList();
-        }
-        
-        // Mover un país abajo en la lista
-        function moveDown(index) {
-            if (index >= selectedCountries.length - 1) return;
-            
-            const temp = selectedCountries[index];
-            selectedCountries[index] = selectedCountries[index + 1];
-            selectedCountries[index + 1] = temp;
-            
-            updateSelectedList();
-        }
-        
-        // Actualizar la lista de países seleccionados
-        function updateSelectedList() {
-            const selectedListEl = document.getElementById('selected-list');
-            selectedListEl.innerHTML = '';
-            
-            if (selectedCountries.length === 0) {
-                selectedListEl.innerHTML = '<p>No has seleccionado ningún país todavía.</p>';
-                return;
-            }
+        function renderSelectedList() {
+            selectedList.innerHTML = '';
             
             selectedCountries.forEach((country, index) => {
-                const points = index < pointsSystem.length ? pointsSystem[index] : 0;
+                const li = document.createElement('li');
+                li.className = 'selected-item';
+                li.draggable = true;
+                li.dataset.id = country.id;
                 
-                const itemEl = document.createElement('div');
-                itemEl.className = 'selected-item';
-                itemEl.innerHTML = `
+                li.innerHTML = `
                     <div class="country-info">
-                        <span class="position-number">${index + 1}</span>
                         <span class="country-flag">${country.flag}</span>
-                        <span class="country-name">${country.name}</span>
-                        <span>${country.song}</span>
+                        <strong>${country.name}</strong> - ${country.song}
                     </div>
-                    <span class="points">${points} pts</span>
-                    <div>
-                        <button onclick="moveUp(${index})" ${index === 0 ? 'disabled' : ''}>▲</button>
-                        <button onclick="moveDown(${index})" ${index === selectedCountries.length - 1 ? 'disabled' : ''}>▼</button>
-                        <button class="remove-btn" onclick="removeCountry(${index})">×</button>
-                    </div>
+                    <div class="points">${index < pointsSystem.length ? pointsSystem[index] + ' pts' : '0 pts'}</div>
+                    <button class="remove-btn">×</button>
                 `;
                 
-                selectedListEl.appendChild(itemEl);
+                const removeBtn = li.querySelector('.remove-btn');
+                removeBtn.addEventListener('click', () => {
+                    removeCountryFromSelection(country.id);
+                });
+                
+                // Drag and drop functionality
+                li.addEventListener('dragstart', handleDragStart);
+                li.addEventListener('dragover', handleDragOver);
+                li.addEventListener('drop', handleDrop);
+                li.addEventListener('dragend', handleDragEnd);
+                
+                selectedList.appendChild(li);
             });
         }
         
-        // Cambiar entre pestañas
-        function showTab(tabName) {
-            // Ocultar todas las pestañas
-            document.getElementById('voting-tab').classList.remove('active');
-            document.getElementById('results-tab').classList.remove('active');
-            
-            // Mostrar la pestaña seleccionada
-            document.getElementById(tabName + '-tab').classList.add('active');
-            
-            // Actualizar botones de pestañas
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(button => {
-                button.classList.remove('active');
-            });
-            
-            // Activar el botón correspondiente
-            event.target.classList.add('active');
-            
-            // Si se seleccionó la pestaña de resultados, actualizar
-            if (tabName === 'results') {
-                updateResults();
+        function addCountryToSelection(country) {
+            selectedCountries.push(country);
+            renderCountryList();
+            renderSelectedList();
+        }
+        
+        function removeCountryFromSelection(countryId) {
+            selectedCountries = selectedCountries.filter(c => c.id !== countryId);
+            renderCountryList();
+            renderSelectedList();
+        }
+        
+        // Drag and drop handlers
+        let draggedItem = null;
+        
+        function handleDragStart(e) {
+            draggedItem = this;
+            setTimeout(() => {
+                this.classList.add('dragging');
+            }, 0);
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            return false;
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            if (draggedItem !== this) {
+                const draggedCountryId = parseInt(draggedItem.dataset.id);
+                const targetCountryId = parseInt(this.dataset.id);
+                
+                const draggedIndex = selectedCountries.findIndex(c => c.id === draggedCountryId);
+                const targetIndex = selectedCountries.findIndex(c => c.id === targetCountryId);
+                
+                // Reorder array
+                const [removedCountry] = selectedCountries.splice(draggedIndex, 1);
+                selectedCountries.splice(targetIndex, 0, removedCountry);
+                
+                renderSelectedList();
             }
+            return false;
         }
         
-        // Guardar los votos del usuario
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+        }
+        
         function saveVotes() {
-            const username = document.getElementById('username').value.trim();
+            const username = usernameInput.value.trim();
             
             if (!username) {
                 alert('Por favor, introduce tu nombre.');
@@ -550,7 +565,7 @@
                 return;
             }
             
-            // Verificar si el usuario ya votó
+            // Check if user already voted
             const existingVoteIndex = votes.findIndex(v => v.username === username);
             
             const userVotes = selectedCountries.slice(0, 10).map((country, index) => {
@@ -571,28 +586,25 @@
                 votes.push(vote);
             }
             
-            // Guardar en localStorage
+            // Save to localStorage
             localStorage.setItem('eurovisionVotes', JSON.stringify(votes));
             
             alert('¡Tus votos han sido guardados!');
             
-            // Cambiar a la pestaña de resultados
-            showTab('results');
+            // Switch to results tab
+            tabButtons[1].click();
         }
         
-        // Actualizar la tabla de resultados
-        function updateResults() {
-            const votesCountEl = document.getElementById('votes-count');
-            const resultsListEl = document.getElementById('results-list');
-            
-            votesCountEl.textContent = `${votes.length} ${votes.length === 1 ? 'persona ha votado' : 'personas han votado'}`;
+        function renderResults() {
+            document.querySelector('.results').style.display = 'block';
+            votesCount.textContent = `${votes.length} ${votes.length === 1 ? 'persona ha votado' : 'personas han votado'}`;
             
             if (votes.length === 0) {
-                resultsListEl.innerHTML = '<p>Aún no hay votos. ¡Sé el primero en votar!</p>';
+                resultsList.innerHTML = '<p>Aún no hay votos. ¡Sé el primero en votar!</p>';
                 return;
             }
             
-            // Calcular puntos totales por país
+            // Calculate total points per country
             const results = {};
             
             votes.forEach(vote => {
@@ -604,48 +616,42 @@
                 });
             });
             
-            // Convertir a array y ordenar
-            const sortedResults = [];
+            // Convert to array and sort
+            const sortedResults = Object.entries(results)
+                .map(([countryId, points]) => {
+                    const country = countries.find(c => c.id === parseInt(countryId));
+                    return { country, points };
+                })
+                .sort((a, b) => b.points - a.points);
             
-            for (const countryId in results) {
-                const country = countries.find(c => c.id === parseInt(countryId));
-                sortedResults.push({
-                    country: country,
-                    points: results[countryId]
-                });
-            }
-            
-            sortedResults.sort((a, b) => b.points - a.points);
-            
-            // Renderizar resultados
-            resultsListEl.innerHTML = '';
-            
+            // Render results
+            resultsList.innerHTML = '';
             sortedResults.forEach((result, index) => {
-                const itemEl = document.createElement('div');
-                itemEl.className = 'results-item';
-                itemEl.innerHTML = `
+                const li = document.createElement('li');
+                li.className = 'results-item';
+                li.innerHTML = `
                     <div class="country-info">
-                        <span class="position-number">${index + 1}</span>
+                        <span class="position">${index + 1}.</span>
                         <span class="country-flag">${result.country.flag}</span>
-                        <span class="country-name">${result.country.name}</span>
-                        <span>${result.country.song}</span>
+                        <strong>${result.country.name}</strong> - ${result.country.song}
                     </div>
-                    <span class="total-points">${result.points} pts</span>
+                    <div class="total-points">${result.points} pts</div>
                 `;
-                
-                resultsListEl.appendChild(itemEl);
+                resultsList.appendChild(li);
             });
         }
         
-        // Reiniciar la votación
         function resetVotes() {
             if (confirm('¿Estás seguro de que quieres reiniciar la votación? Se borrarán todos los votos.')) {
                 votes = [];
                 localStorage.setItem('eurovisionVotes', JSON.stringify(votes));
-                updateResults();
+                renderResults();
                 alert('Votación reiniciada correctamente.');
             }
         }
+
+        // Iniciar la aplicación inmediatamente
+        initApp();
     </script>
 </body>
 </html>
