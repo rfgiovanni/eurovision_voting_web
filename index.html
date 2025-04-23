@@ -61,7 +61,7 @@
         
         .country-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 10px;
             padding: 0;
             margin: 1rem 0;
@@ -133,16 +133,28 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex: 1;
+            min-width: 0;
         }
         
         .country-info .song-title {
             margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .country-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .points {
             font-weight: bold;
             color: var(--primary);
             padding-left: 10px;
+            white-space: nowrap;
+            margin-left: auto;
         }
         
         .button {
@@ -157,6 +169,7 @@
             text-align: center;
             transition: background-color 0.2s;
             width: 100%;
+            touch-action: manipulation;
         }
         
         .button:hover {
@@ -206,6 +219,7 @@
         .total-points {
             font-weight: bold;
             margin-left: 1rem;
+            white-space: nowrap;
         }
         
         .user-selector {
@@ -238,6 +252,7 @@
             background-color: #e0e0e0;
             border: none;
             cursor: pointer;
+            touch-action: manipulation;
         }
         
         .tab-button.active {
@@ -274,6 +289,9 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
+            margin-left: 8px;
+            flex-shrink: 0;
+            touch-action: manipulation;
         }
         
         .position-badge {
@@ -288,6 +306,7 @@
             margin-right: 8px;
             font-weight: bold;
             font-size: 0.8rem;
+            flex-shrink: 0;
         }
         
         @media (max-width: 600px) {
@@ -304,7 +323,11 @@
             }
             
             .country-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            }
+            
+            .selected-item {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -505,7 +528,7 @@
                     <div class="country-info">
                         <span class="position-badge">${index + 1}</span>
                         <span class="country-flag">${country.flag}</span>
-                        <strong>${country.name}</strong> - <span class="song-title">${country.song}</span>
+                        <strong class="country-name">${country.name}</strong> <span class="song-title">${country.song}</span>
                     </div>
                     <div class="points">${index < pointsSystem.length ? pointsSystem[index] + ' pts' : '0 pts'}</div>
                     <button class="remove-btn">×</button>
@@ -656,7 +679,7 @@
                     <div class="country-info">
                         <span class="position">${index + 1}.</span>
                         <span class="country-flag">${result.country.flag}</span>
-                        <strong>${result.country.name}</strong> - <span class="song-title">${result.country.song}</span>
+                        <strong class="country-name">${result.country.name}</strong> <span class="song-title">${result.country.song}</span>
                     </div>
                     <div class="total-points">${result.points} pts</div>
                 `;
