@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Votación Eurovisión 2025</title>
     <style>
+        /* Tu CSS actual se mantiene igual */
         :root {
             --primary: #1565c0;
             --secondary: #0d47a1;
@@ -303,6 +304,25 @@
         .results-container {
             display: none;
         }
+
+        .loading {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
         
         @media (max-width: 600px) {
             header {
@@ -388,6 +408,10 @@
             </div>
             
             <div class="results-container" id="results-container">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando resultados...</p>
+                </div>
                 <div class="card">
                     <h2>Clasificación final</h2>
                     <p id="votes-count">0 personas han votado</p>
@@ -400,7 +424,32 @@
         </div>
     </main>
 
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <!-- Firebase Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
     <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            // REEMPLAZA ESTO CON TU CONFIGURACIÓN DE FIREBASE
+            apiKey: "AIzaSyAa3NjkVpSPwe9cPsTlaMrL9mXHnb6Ma5U",
+            authDomain: "eurovision-af42a.firebaseapp.com",
+            databaseURL: "https://eurovision-af42a-default-rtdb.firebaseio.com",
+            projectId: "eurovision-af42a",
+            storageBucket: "eurovision-af42a.firebasestorage.app",
+            messagingSenderId: "363956903909",
+            appId: "1:363956903909:web:7594a90e05e51cb6d5990c",
+            measurementId: "G-0EDJE823YB"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Referencia a la base de datos
+        const database = firebase.database();
+        const votesRef = database.ref('eurovisionVotes');
+        
         // Datos de países participantes en Eurovisión 2025 (reducidos a 26)
         const countries = [
             { id: 1, name: "Albania", flag: "🇦🇱", song: "Título pendiente" },
@@ -437,7 +486,7 @@
         // Variables globales
         const ACCESS_CODE = "macedonia"; 
         let selectedCountries = [];
-        let votes = JSON.parse(localStorage.getItem('eurovisionVotes')) || [];
+        let votes = []; // Inicialmente vacío, se llenará desde Firebase
         let draggedItem = null;
         
         // Inicializar la aplicación
@@ -447,6 +496,42 @@
             renderCountryGrid();
             renderSelectedList();
             setupEventListeners();
+            loadUserSelection();
+            loadVotesFromFirebase();
+        }
+        
+        // Cargar selección del usuario desde localStorage
+        function loadUserSelection() {
+            const username = document.getElementById('username').value;
+            if (username) {
+                const savedSelection = localStorage.getItem(`eurovisionSelection_${username}`);
+                if (savedSelection) {
+                    selectedCountries = JSON.parse(savedSelection);
+                    renderCountryGrid();
+                    renderSelectedList();
+                }
+            }
+        }
+        
+        // Guardar selección del usuario en localStorage
+        function saveUserSelection() {
+            const username = document.getElementById('username').value;
+            if (username) {
+                localStorage.setItem(`eurovisionSelection_${username}`, JSON.stringify(selectedCountries));
+            }
+        }
+        
+        // Cargar votos desde Firebase
+        function loadVotesFromFirebase() {
+            votesRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    // Convertir objeto a array
+                    const votesData = snapshot.val();
+                    votes = Object.keys(votesData).map(key => votesData[key]);
+                } else {
+                    votes = [];
+                }
+            });
         }
         
         function setupEventListeners() {
@@ -472,6 +557,9 @@
             document.getElementById('access-code').addEventListener('keyup', e => {
                 if (e.key === 'Enter') verifyAccessCode();
             });
+            
+            // Cambio de usuario
+            document.getElementById('username').addEventListener('change', loadUserSelection);
         }
         
         function renderCountryGrid() {
@@ -541,12 +629,14 @@
             selectedCountries.push(country);
             renderCountryGrid();
             renderSelectedList();
+            saveUserSelection();
         }
         
         function removeCountryFromSelection(countryId) {
             selectedCountries = selectedCountries.filter(c => c.id !== countryId);
             renderCountryGrid();
             renderSelectedList();
+            saveUserSelection();
         }
         
         function handleDragStart(e) {
@@ -565,6 +655,7 @@
                 selectedCountries.splice(targetIndex, 0, removedCountry);
                 
                 renderSelectedList();
+                saveUserSelection();
             }
             return false;
         }
@@ -582,83 +673,106 @@
                 return;
             }
             
-            // Check if user already voted
-            const existingVoteIndex = votes.findIndex(v => v.username === username);
-            
             const userVotes = selectedCountries.slice(0, 10).map((country, index) => ({
                 countryId: country.id,
                 points: index < pointsSystem.length ? pointsSystem[index] : 0
             }));
             
-            const vote = { username, votes: userVotes };
+            const vote = { username, votes: userVotes, timestamp: Date.now() };
             
-            if (existingVoteIndex >= 0) {
-                votes[existingVoteIndex] = vote;
-            } else {
-                votes.push(vote);
-            }
-            
-            // Save to localStorage
-            localStorage.setItem('eurovisionVotes', JSON.stringify(votes));
-            
-            alert('¡Tus votos han sido guardados!');
-            
-            // Switch to results tab
-            document.querySelectorAll('.tab-button')[1].click();
+            // Guardar en Firebase
+            votesRef.child(username).set(vote)
+                .then(() => {
+                    alert('¡Tus votos han sido guardados!');
+                    // Switch to results tab
+                    document.querySelectorAll('.tab-button')[1].click();
+                })
+                .catch((error) => {
+                    console.error("Error saving votes: ", error);
+                    alert('Ha ocurrido un error al guardar tus votos. Por favor, inténtalo de nuevo.');
+                });
         }
         
         function renderResults() {
             const votesCountEl = document.getElementById('votes-count');
             const resultsList = document.getElementById('results-list');
+            const loadingEl = document.getElementById('loading');
             
-            votesCountEl.textContent = `${votes.length} ${votes.length === 1 ? 'persona ha votado' : 'personas han votado'}`;
+            loadingEl.style.display = 'block';
             
-            if (votes.length === 0) {
-                resultsList.innerHTML = '<p>Aún no hay votos. ¡Sé el primero en votar!</p>';
-                return;
-            }
-            
-            // Calculate total points per country
-            const results = {};
-            
-            votes.forEach(vote => {
-                vote.votes.forEach(v => {
-                    if (!results[v.countryId]) results[v.countryId] = 0;
-                    results[v.countryId] += v.points;
+            // Obtener los datos más actualizados
+            votesRef.once('value')
+                .then((snapshot) => {
+                    loadingEl.style.display = 'none';
+                    
+                    if (snapshot.exists()) {
+                        const votesData = snapshot.val();
+                        votes = Object.keys(votesData).map(key => votesData[key]);
+                    } else {
+                        votes = [];
+                    }
+                    
+                    votesCountEl.textContent = `${votes.length} ${votes.length === 1 ? 'persona ha votado' : 'personas han votado'}`;
+                    
+                    if (votes.length === 0) {
+                        resultsList.innerHTML = '<p>Aún no hay votos. ¡Sé el primero en votar!</p>';
+                        return;
+                    }
+                    
+                    // Calculate total points per country
+                    const results = {};
+                    
+                    votes.forEach(vote => {
+                        vote.votes.forEach(v => {
+                            if (!results[v.countryId]) results[v.countryId] = 0;
+                            results[v.countryId] += v.points;
+                        });
+                    });
+                    
+                    // Convert to array and sort
+                    const sortedResults = Object.entries(results)
+                        .map(([countryId, points]) => ({
+                            country: countries.find(c => c.id === parseInt(countryId)),
+                            points
+                        }))
+                        .sort((a, b) => b.points - a.points);
+                    
+                    // Render results
+                    resultsList.innerHTML = '';
+                    sortedResults.forEach((result, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'results-item';
+                        li.innerHTML = `
+                            <div class="country-info">
+                                <span class="position">${index + 1}.</span>
+                                <span class="country-flag">${result.country.flag}</span>
+                                <strong class="country-name">${result.country.name}</strong>
+                            </div>
+                            <div class="total-points">${result.points} pts</div>
+                        `;
+                        resultsList.appendChild(li);
+                    });
+                })
+                .catch((error) => {
+                    loadingEl.style.display = 'none';
+                    console.error("Error loading results: ", error);
+                    resultsList.innerHTML = '<p>Error al cargar los resultados. Por favor, inténtalo de nuevo.</p>';
                 });
-            });
-            
-            // Convert to array and sort
-            const sortedResults = Object.entries(results)
-                .map(([countryId, points]) => ({
-                    country: countries.find(c => c.id === parseInt(countryId)),
-                    points
-                }))
-                .sort((a, b) => b.points - a.points);
-            
-            // Render results
-            resultsList.innerHTML = '';
-            sortedResults.forEach((result, index) => {
-                const li = document.createElement('li');
-                li.className = 'results-item';
-                li.innerHTML = `
-                    <div class="country-info">
-                        <span class="position">${index + 1}.</span>
-                        <span class="country-flag">${result.country.flag}</span>
-                        <strong class="country-name">${result.country.name}</strong>
-                    </div>
-                    <div class="total-points">${result.points} pts</div>
-                `;
-                resultsList.appendChild(li);
-            });
         }
         
         function resetVotes() {
             if (confirm('¿Estás seguro de que quieres reiniciar la votación? Se borrarán todos los votos.')) {
-                votes = [];
-                localStorage.setItem('eurovisionVotes', JSON.stringify(votes));
-                renderResults();
-                alert('Votación reiniciada correctamente.');
+                // Eliminar todos los votos en Firebase
+                votesRef.remove()
+                    .then(() => {
+                        votes = [];
+                        renderResults();
+                        alert('Votación reiniciada correctamente.');
+                    })
+                    .catch((error) => {
+                        console.error("Error resetting votes: ", error);
+                        alert('Ha ocurrido un error al reiniciar la votación. Por favor, inténtalo de nuevo.');
+                    });
             }
         }
         
