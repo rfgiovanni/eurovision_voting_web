@@ -170,6 +170,9 @@
             transition: background-color 0.2s;
             width: 100%;
             touch-action: manipulation;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
         
         .button:hover {
@@ -309,6 +312,22 @@
             flex-shrink: 0;
         }
         
+        .access-code {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .access-code-input {
+            display: flex;
+            margin: 0 auto;
+            max-width: 300px;
+            gap: 10px;
+        }
+        
+        .results-container {
+            display: none;
+        }
+        
         @media (max-width: 600px) {
             header {
                 padding: 1rem 0;
@@ -371,21 +390,32 @@
                         <!-- Se llenará dinámicamente -->
                     </ul>
                     
-                    <button class="button" id="submit-votes">Guardar mis votos</button>
+                    <button class="button" id="submit-votes" type="button">Guardar mis votos</button>
                 </div>
             </div>
         </div>
         
         <div class="tab-content" id="results-tab">
-            <div class="results">
-                <h2>Clasificación final</h2>
-                <p id="votes-count">0 personas han votado</p>
-                
-                <ul class="results-list" id="results-list">
-                    <!-- Se llenará dinámicamente -->
-                </ul>
-                
-                <button class="button" id="reset-votes">Reiniciar votación</button>
+            <div class="access-code">
+                <h3>Acceso a resultados</h3>
+                <p>Introduce el código para ver los resultados:</p>
+                <div class="access-code-input">
+                    <input type="text" id="access-code" placeholder="Código de acceso">
+                    <button class="button" id="verify-code" type="button">Verificar</button>
+                </div>
+            </div>
+            
+            <div class="results-container" id="results-container">
+                <div class="results">
+                    <h2>Clasificación final</h2>
+                    <p id="votes-count">0 personas han votado</p>
+                    
+                    <ul class="results-list" id="results-list">
+                        <!-- Se llenará dinámicamente -->
+                    </ul>
+                    
+                    <button class="button" id="reset-votes" type="button">Reiniciar votación</button>
+                </div>
             </div>
         </div>
     </main>
@@ -439,6 +469,7 @@
         // Variables globales
         let selectedCountries = [];
         let votes = JSON.parse(localStorage.getItem('eurovisionVotes')) || [];
+        const ACCESS_CODE = "macedonia"; // Código para acceder a los resultados
         
         // Elementos DOM
         const countryGrid = document.getElementById('country-grid');
@@ -450,6 +481,9 @@
         const votesCount = document.getElementById('votes-count');
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
+        const accessCodeInput = document.getElementById('access-code');
+        const verifyCodeButton = document.getElementById('verify-code');
+        const resultsContainer = document.getElementById('results-container');
         
         // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', function() {
@@ -459,7 +493,6 @@
         function initApp() {
             renderCountryGrid();
             renderSelectedList();
-            renderResults();
             setupEventListeners();
         }
         
@@ -474,10 +507,6 @@
                     
                     button.classList.add('active');
                     document.getElementById(`${tab}-tab`).classList.add('active');
-                    
-                    if (tab === 'results') {
-                        renderResults();
-                    }
                 });
             });
             
@@ -486,6 +515,16 @@
             
             // Reiniciar votación
             resetButton.addEventListener('click', resetVotes);
+            
+            // Verificar código de acceso
+            verifyCodeButton.addEventListener('click', verifyAccessCode);
+            
+            // También verificar al presionar Enter en el campo de código
+            accessCodeInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    verifyAccessCode();
+                }
+            });
         }
         
         function renderCountryGrid() {
@@ -531,7 +570,7 @@
                         <strong class="country-name">${country.name}</strong> <span class="song-title">${country.song}</span>
                     </div>
                     <div class="points">${index < pointsSystem.length ? pointsSystem[index] + ' pts' : '0 pts'}</div>
-                    <button class="remove-btn">×</button>
+                    <button class="remove-btn" type="button">×</button>
                 `;
                 
                 const removeBtn = li.querySelector('.remove-btn');
@@ -693,6 +732,18 @@
                 localStorage.setItem('eurovisionVotes', JSON.stringify(votes));
                 renderResults();
                 alert('Votación reiniciada correctamente.');
+            }
+        }
+        
+        function verifyAccessCode() {
+            const code = accessCodeInput.value.trim();
+            
+            if (code === ACCESS_CODE) {
+                resultsContainer.style.display = 'block';
+                renderResults();
+            } else {
+                alert('Código de acceso incorrecto.');
+                resultsContainer.style.display = 'none';
             }
         }
 
