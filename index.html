@@ -29,9 +29,8 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        h1 {
-            margin: 0;
-            font-size: 1.8rem;
+        h1, h2, h3 {
+            margin-top: 0;
         }
         
         main {
@@ -52,7 +51,7 @@
             margin-bottom: 2rem;
         }
         
-        .user-form {
+        .card {
             background-color: var(--card);
             padding: 1.5rem;
             border-radius: 8px;
@@ -63,7 +62,6 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 10px;
-            padding: 0;
             margin: 1rem 0;
         }
         
@@ -98,17 +96,6 @@
             margin: 5px 0 0;
         }
         
-        .selected-countries {
-            background-color: var(--card);
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .selected-countries h3 {
-            margin-top: 0;
-        }
-        
         .selected-list {
             list-style: none;
             padding: 0;
@@ -137,13 +124,7 @@
             min-width: 0;
         }
         
-        .country-info .song-title {
-            margin: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .country-name {
+        .country-name, .song-title {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -152,9 +133,9 @@
         .points {
             font-weight: bold;
             color: var(--primary);
-            padding-left: 10px;
             white-space: nowrap;
             margin-left: auto;
+            padding-left: 10px;
         }
         
         .button {
@@ -171,20 +152,11 @@
             width: 100%;
             touch-action: manipulation;
             -webkit-appearance: none;
-            -moz-appearance: none;
             appearance: none;
         }
         
         .button:hover {
             background-color: var(--secondary);
-        }
-        
-        .results {
-            background-color: var(--card);
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: none;
         }
         
         .results-list {
@@ -225,17 +197,13 @@
             white-space: nowrap;
         }
         
-        .user-selector {
-            margin-bottom: 1.5rem;
-        }
-        
         label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
         }
         
-        input, select {
+        select {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #ddd;
@@ -324,6 +292,14 @@
             gap: 10px;
         }
         
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
         .results-container {
             display: none;
         }
@@ -337,7 +313,7 @@
                 font-size: 1.5rem;
             }
             
-            .user-form, .selected-countries, .results {
+            .card {
                 padding: 1rem;
             }
             
@@ -368,27 +344,33 @@
         
         <div class="tab-content active" id="voting-tab">
             <div class="panel">
-                <div class="user-form">
+                <div class="card">
                     <div class="user-selector">
-                        <label for="username">Tu nombre:</label>
-                        <input type="text" id="username" placeholder="Introduce tu nombre">
+                        <label for="username">¿Quién eres?</label>
+                        <select id="username">
+                            <option value="">Selecciona tu nombre</option>
+                            <option value="Ana">Ana</option>
+                            <option value="Carlos">Carlos</option>
+                            <option value="Elena">Elena</option>
+                            <option value="Javier">Javier</option>
+                            <option value="Laura">Laura</option>
+                            <option value="Miguel">Miguel</option>
+                            <option value="Patricia">Patricia</option>
+                            <option value="Sergio">Sergio</option>
+                        </select>
                     </div>
                     
                     <h3>Selecciona tus canciones favoritas (máximo 10)</h3>
                     <p>Haz clic en las canciones para añadirlas a tu top 10.</p>
                     
-                    <div class="country-grid" id="country-grid">
-                        <!-- Se llenará dinámicamente -->
-                    </div>
+                    <div class="country-grid" id="country-grid"></div>
                 </div>
                 
-                <div class="selected-countries">
+                <div class="card">
                     <h3>Tu Top 10</h3>
                     <p>Arrastra para reordenar tus favoritos. El primero recibe 12 puntos, el segundo 10 puntos, etc.</p>
                     
-                    <ul class="selected-list" id="selected-list">
-                        <!-- Se llenará dinámicamente -->
-                    </ul>
+                    <ul class="selected-list" id="selected-list"></ul>
                     
                     <button class="button" id="submit-votes" type="button">Guardar mis votos</button>
                 </div>
@@ -406,13 +388,11 @@
             </div>
             
             <div class="results-container" id="results-container">
-                <div class="results">
+                <div class="card">
                     <h2>Clasificación final</h2>
                     <p id="votes-count">0 personas han votado</p>
                     
-                    <ul class="results-list" id="results-list">
-                        <!-- Se llenará dinámicamente -->
-                    </ul>
+                    <ul class="results-list" id="results-list"></ul>
                     
                     <button class="button" id="reset-votes" type="button">Reiniciar votación</button>
                 </div>
@@ -421,14 +401,11 @@
     </main>
 
     <script>
-        // Datos de países participantes en Eurovisión 2025
+        // Datos de países participantes en Eurovisión 2025 (reducidos a 26)
         const countries = [
             { id: 1, name: "Albania", flag: "🇦🇱", song: "Título pendiente" },
             { id: 2, name: "Alemania", flag: "🇩🇪", song: "Título pendiente" },
-            { id: 3, name: "Armenia", flag: "🇦🇲", song: "Título pendiente" },
-            { id: 4, name: "Australia", flag: "🇦🇺", song: "Título pendiente" },
             { id: 5, name: "Austria", flag: "🇦🇹", song: "Título pendiente" },
-            { id: 6, name: "Azerbaiyán", flag: "🇦🇿", song: "Título pendiente" },
             { id: 7, name: "Bélgica", flag: "🇧🇪", song: "Título pendiente" },
             { id: 8, name: "Chipre", flag: "🇨🇾", song: "Título pendiente" },
             { id: 9, name: "Croacia", flag: "🇭🇷", song: "Título pendiente" },
@@ -438,28 +415,19 @@
             { id: 13, name: "Estonia", flag: "🇪🇪", song: "Título pendiente" },
             { id: 14, name: "Finlandia", flag: "🇫🇮", song: "Título pendiente" },
             { id: 15, name: "Francia", flag: "🇫🇷", song: "Título pendiente" },
-            { id: 16, name: "Georgia", flag: "🇬🇪", song: "Título pendiente" },
             { id: 17, name: "Grecia", flag: "🇬🇷", song: "Título pendiente" },
             { id: 18, name: "Irlanda", flag: "🇮🇪", song: "Título pendiente" },
             { id: 19, name: "Islandia", flag: "🇮🇸", song: "Título pendiente" },
             { id: 20, name: "Israel", flag: "🇮🇱", song: "Título pendiente" },
             { id: 21, name: "Italia", flag: "🇮🇹", song: "Título pendiente" },
-            { id: 22, name: "Letonia", flag: "🇱🇻", song: "Título pendiente" },
-            { id: 23, name: "Lituania", flag: "🇱🇹", song: "Título pendiente" },
-            { id: 24, name: "Luxemburgo", flag: "🇱🇺", song: "Título pendiente" },
             { id: 25, name: "Malta", flag: "🇲🇹", song: "Título pendiente" },
-            { id: 26, name: "Moldavia", flag: "🇲🇩", song: "Título pendiente" },
             { id: 27, name: "Noruega", flag: "🇳🇴", song: "Título pendiente" },
             { id: 28, name: "Países Bajos", flag: "🇳🇱", song: "Título pendiente" },
             { id: 29, name: "Polonia", flag: "🇵🇱", song: "Título pendiente" },
             { id: 30, name: "Portugal", flag: "🇵🇹", song: "Título pendiente" },
             { id: 31, name: "Reino Unido", flag: "🇬🇧", song: "Título pendiente" },
-            { id: 32, name: "República Checa", flag: "🇨🇿", song: "Título pendiente" },
-            { id: 33, name: "Rumanía", flag: "🇷🇴", song: "Título pendiente" },
             { id: 34, name: "San Marino", flag: "🇸🇲", song: "Título pendiente" },
-            { id: 35, name: "Serbia", flag: "🇷🇸", song: "Título pendiente" },
             { id: 36, name: "Suecia", flag: "🇸🇪", song: "Título pendiente" },
-            { id: 37, name: "Suiza", flag: "🇨🇭", song: "Título pendiente" },
             { id: 38, name: "Ucrania", flag: "🇺🇦", song: "Título pendiente" }
         ];
 
@@ -467,28 +435,13 @@
         const pointsSystem = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
         
         // Variables globales
+        const ACCESS_CODE = "macedonia"; 
         let selectedCountries = [];
         let votes = JSON.parse(localStorage.getItem('eurovisionVotes')) || [];
-        const ACCESS_CODE = "macedonia"; // Código para acceder a los resultados
-        
-        // Elementos DOM
-        const countryGrid = document.getElementById('country-grid');
-        const selectedList = document.getElementById('selected-list');
-        const usernameInput = document.getElementById('username');
-        const submitButton = document.getElementById('submit-votes');
-        const resetButton = document.getElementById('reset-votes');
-        const resultsList = document.getElementById('results-list');
-        const votesCount = document.getElementById('votes-count');
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const accessCodeInput = document.getElementById('access-code');
-        const verifyCodeButton = document.getElementById('verify-code');
-        const resultsContainer = document.getElementById('results-container');
+        let draggedItem = null;
         
         // Inicializar la aplicación
-        document.addEventListener('DOMContentLoaded', function() {
-            initApp();
-        });
+        document.addEventListener('DOMContentLoaded', initApp);
         
         function initApp() {
             renderCountryGrid();
@@ -498,37 +451,32 @@
         
         function setupEventListeners() {
             // Eventos para la navegación por pestañas
-            tabButtons.forEach(button => {
+            document.querySelectorAll('.tab-button').forEach(button => {
                 button.addEventListener('click', () => {
                     const tab = button.dataset.tab;
                     
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                     
                     button.classList.add('active');
                     document.getElementById(`${tab}-tab`).classList.add('active');
                 });
             });
             
-            // Enviar votos
-            submitButton.addEventListener('click', saveVotes);
-            
-            // Reiniciar votación
-            resetButton.addEventListener('click', resetVotes);
+            // Eventos principales
+            document.getElementById('submit-votes').addEventListener('click', saveVotes);
+            document.getElementById('reset-votes').addEventListener('click', resetVotes);
             
             // Verificar código de acceso
-            verifyCodeButton.addEventListener('click', verifyAccessCode);
-            
-            // También verificar al presionar Enter en el campo de código
-            accessCodeInput.addEventListener('keyup', function(event) {
-                if (event.key === 'Enter') {
-                    verifyAccessCode();
-                }
+            document.getElementById('verify-code').addEventListener('click', verifyAccessCode);
+            document.getElementById('access-code').addEventListener('keyup', e => {
+                if (e.key === 'Enter') verifyAccessCode();
             });
         }
         
         function renderCountryGrid() {
-            countryGrid.innerHTML = '';
+            const grid = document.getElementById('country-grid');
+            grid.innerHTML = '';
             
             countries.forEach(country => {
                 // Skip if already selected
@@ -539,6 +487,7 @@
                 card.dataset.id = country.id;
                 card.innerHTML = `
                     <span class="country-flag">${country.flag}</span>
+                    <p class="country-name">${country.name}</p>
                     <p class="song-title">${country.song}</p>
                 `;
                 
@@ -550,12 +499,13 @@
                     }
                 });
                 
-                countryGrid.appendChild(card);
+                grid.appendChild(card);
             });
         }
         
         function renderSelectedList() {
-            selectedList.innerHTML = '';
+            const list = document.getElementById('selected-list');
+            list.innerHTML = '';
             
             selectedCountries.forEach((country, index) => {
                 const li = document.createElement('li');
@@ -567,24 +517,23 @@
                     <div class="country-info">
                         <span class="position-badge">${index + 1}</span>
                         <span class="country-flag">${country.flag}</span>
-                        <strong class="country-name">${country.name}</strong> <span class="song-title">${country.song}</span>
+                        <strong class="country-name">${country.name}</strong>
                     </div>
                     <div class="points">${index < pointsSystem.length ? pointsSystem[index] + ' pts' : '0 pts'}</div>
                     <button class="remove-btn" type="button">×</button>
                 `;
                 
-                const removeBtn = li.querySelector('.remove-btn');
-                removeBtn.addEventListener('click', () => {
+                li.querySelector('.remove-btn').addEventListener('click', () => {
                     removeCountryFromSelection(country.id);
                 });
                 
                 // Drag and drop functionality
                 li.addEventListener('dragstart', handleDragStart);
-                li.addEventListener('dragover', handleDragOver);
+                li.addEventListener('dragover', e => e.preventDefault());
                 li.addEventListener('drop', handleDrop);
-                li.addEventListener('dragend', handleDragEnd);
+                li.addEventListener('dragend', () => li.classList.remove('dragging'));
                 
-                selectedList.appendChild(li);
+                list.appendChild(li);
             });
         }
         
@@ -600,29 +549,16 @@
             renderSelectedList();
         }
         
-        // Drag and drop handlers
-        let draggedItem = null;
-        
         function handleDragStart(e) {
             draggedItem = this;
-            setTimeout(() => {
-                this.classList.add('dragging');
-            }, 0);
-        }
-        
-        function handleDragOver(e) {
-            e.preventDefault();
-            return false;
+            setTimeout(() => this.classList.add('dragging'), 0);
         }
         
         function handleDrop(e) {
             e.preventDefault();
             if (draggedItem !== this) {
-                const draggedCountryId = parseInt(draggedItem.dataset.id);
-                const targetCountryId = parseInt(this.dataset.id);
-                
-                const draggedIndex = selectedCountries.findIndex(c => c.id === draggedCountryId);
-                const targetIndex = selectedCountries.findIndex(c => c.id === targetCountryId);
+                const draggedIndex = selectedCountries.findIndex(c => c.id === parseInt(draggedItem.dataset.id));
+                const targetIndex = selectedCountries.findIndex(c => c.id === parseInt(this.dataset.id));
                 
                 // Reorder array
                 const [removedCountry] = selectedCountries.splice(draggedIndex, 1);
@@ -633,15 +569,11 @@
             return false;
         }
         
-        function handleDragEnd() {
-            this.classList.remove('dragging');
-        }
-        
         function saveVotes() {
-            const username = usernameInput.value.trim();
+            const username = document.getElementById('username').value;
             
             if (!username) {
-                alert('Por favor, introduce tu nombre.');
+                alert('Por favor, selecciona tu nombre.');
                 return;
             }
             
@@ -653,17 +585,12 @@
             // Check if user already voted
             const existingVoteIndex = votes.findIndex(v => v.username === username);
             
-            const userVotes = selectedCountries.slice(0, 10).map((country, index) => {
-                return {
-                    countryId: country.id,
-                    points: index < pointsSystem.length ? pointsSystem[index] : 0
-                };
-            });
+            const userVotes = selectedCountries.slice(0, 10).map((country, index) => ({
+                countryId: country.id,
+                points: index < pointsSystem.length ? pointsSystem[index] : 0
+            }));
             
-            const vote = {
-                username,
-                votes: userVotes
-            };
+            const vote = { username, votes: userVotes };
             
             if (existingVoteIndex >= 0) {
                 votes[existingVoteIndex] = vote;
@@ -677,12 +604,14 @@
             alert('¡Tus votos han sido guardados!');
             
             // Switch to results tab
-            tabButtons[1].click();
+            document.querySelectorAll('.tab-button')[1].click();
         }
         
         function renderResults() {
-            document.querySelector('.results').style.display = 'block';
-            votesCount.textContent = `${votes.length} ${votes.length === 1 ? 'persona ha votado' : 'personas han votado'}`;
+            const votesCountEl = document.getElementById('votes-count');
+            const resultsList = document.getElementById('results-list');
+            
+            votesCountEl.textContent = `${votes.length} ${votes.length === 1 ? 'persona ha votado' : 'personas han votado'}`;
             
             if (votes.length === 0) {
                 resultsList.innerHTML = '<p>Aún no hay votos. ¡Sé el primero en votar!</p>';
@@ -694,19 +623,17 @@
             
             votes.forEach(vote => {
                 vote.votes.forEach(v => {
-                    if (!results[v.countryId]) {
-                        results[v.countryId] = 0;
-                    }
+                    if (!results[v.countryId]) results[v.countryId] = 0;
                     results[v.countryId] += v.points;
                 });
             });
             
             // Convert to array and sort
             const sortedResults = Object.entries(results)
-                .map(([countryId, points]) => {
-                    const country = countries.find(c => c.id === parseInt(countryId));
-                    return { country, points };
-                })
+                .map(([countryId, points]) => ({
+                    country: countries.find(c => c.id === parseInt(countryId)),
+                    points
+                }))
                 .sort((a, b) => b.points - a.points);
             
             // Render results
@@ -718,7 +645,7 @@
                     <div class="country-info">
                         <span class="position">${index + 1}.</span>
                         <span class="country-flag">${result.country.flag}</span>
-                        <strong class="country-name">${result.country.name}</strong> <span class="song-title">${result.country.song}</span>
+                        <strong class="country-name">${result.country.name}</strong>
                     </div>
                     <div class="total-points">${result.points} pts</div>
                 `;
@@ -736,7 +663,8 @@
         }
         
         function verifyAccessCode() {
-            const code = accessCodeInput.value.trim();
+            const code = document.getElementById('access-code').value.trim();
+            const resultsContainer = document.getElementById('results-container');
             
             if (code === ACCESS_CODE) {
                 resultsContainer.style.display = 'block';
@@ -746,9 +674,6 @@
                 resultsContainer.style.display = 'none';
             }
         }
-
-        // Iniciar la aplicación inmediatamente
-        initApp();
     </script>
 </body>
 </html>
