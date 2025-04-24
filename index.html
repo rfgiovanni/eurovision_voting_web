@@ -480,7 +480,7 @@
         
         <div class="tab-content" id="results-tab">
             <div class="access-code">
-                <h3>Acceso a resultados</h3>
+                <h3>Onde vas? Só eu podo saber o resultado 😏</h3>
                 <p>Introduce o código para ver os resultados:</p>
                 <div class="access-code-input">
                     <input type="text" id="access-code" placeholder="Código de acceso">
@@ -778,7 +778,7 @@
             // Guardar en Firebase
             votesRef.child(username).set(vote)
                 .then(() => {
-                    alert('¡Tus votos han sido guardados!');
+                    alert('¡Feito! Os teus votos xa se enviaron.');
                     // Switch to results tab
                     document.querySelectorAll('.tab-button')[1].click();
                 })
