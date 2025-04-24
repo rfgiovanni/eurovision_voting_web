@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Votación Eurovisión 2025</title>
+    <title>Cea de Eurovisión 2025</title>
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #3f51b5, #9c27b0);
@@ -434,7 +434,8 @@
     
     <main>
         <div class="intro">
-            <p>¡Vota por tus 10 canciones favoritas y crea vuestro ranking de Eurovisión 2025!</p>
+            <p>Chegou a hora de facer o noso Top de Eurovisión 2025!</p>
+            <p>Instrucción: Elixe as túas 10 cancións favoritas, reparte os puntos e listo. </p>
         </div>
         
         <div class="tab-buttons">
@@ -446,33 +447,33 @@
             <div class="panel">
                 <div class="card">
                     <div class="user-selector">
-                        <label for="username">¿Quién eres?</label>
+                        <label for="username">¿Quen es?</label>
                         <select id="username">
-                            <option value="">Selecciona tu nombre</option>
-                            <option value="Ana">Ana</option>
-                            <option value="Carlos">Carlos</option>
-                            <option value="Elena">Elena</option>
-                            <option value="Javier">Javier</option>
-                            <option value="Laura">Laura</option>
-                            <option value="Miguel">Miguel</option>
-                            <option value="Patricia">Patricia</option>
-                            <option value="Sergio">Sergio</option>
+                            <option value="">Escolle a túa personaxe</option>
+                            <option value="Nerea">Nerea, a Profe</option>
+                            <option value="Giovanni">Giovanni, o Madrileño</option>
+                            <option value="Soraya">Soraya, a Bióloga</option>
+                            <option value="Carmen">Carmen, a Salcedense</option>
+                            <option value="Xavier">Xavier, o Panadeiro</option>
+                            <option value="Janira">Janira, a Funcionaria</option>
+                            <option value="Laura">Laura, a Mestra</option>
+                            <option value="Montse">Montse, a Coruñesa</option>
                         </select>
                     </div>
                     
-                    <h3>Selecciona tus canciones favoritas (máximo 10)</h3>
-                    <p>Haz clic en las canciones para añadirlas a tu top 10.</p>
+                    <h3>Selecciona as túas cancións favoritas (máximo 10)</h3>
+                    <p>Preme en cada país para engadilo ao teu Top 10.</p>
                     
                     <div class="country-grid" id="country-grid"></div>
                 </div>
                 
                 <div class="card">
                     <h3>Tu Top 10</h3>
-                    <p>Arrastra para reordenar tus favoritos. El primero recibe 12 puntos, el segundo 10 puntos, etc.</p>
+                    <p>Arrastra para reordear os teus favoritos. O primeiro recibe 12 puntos, o segundo 10 puntos, etc.</p>
                     
                     <ul class="selected-list" id="selected-list"></ul>
                     
-                    <button class="button" id="submit-votes" type="button">Guardar mis votos</button>
+                    <button class="button" id="submit-votes" type="button">Enviar os meus votos</button>
                 </div>
             </div>
         </div>
@@ -480,7 +481,7 @@
         <div class="tab-content" id="results-tab">
             <div class="access-code">
                 <h3>Acceso a resultados</h3>
-                <p>Introduce el código para ver los resultados:</p>
+                <p>Introduce o código para ver os resultados:</p>
                 <div class="access-code-input">
                     <input type="text" id="access-code" placeholder="Código de acceso">
                     <button class="button" id="verify-code" type="button">Verificar</button>
@@ -494,7 +495,7 @@
                 </div>
                 <div class="card">
                     <h2>Clasificación final</h2>
-                    <p id="votes-count">0 personas han votado</p>
+                    <p id="votes-count">0 persoas votaron</p>
                     
                     <ul class="results-list" id="results-list"></ul>
                     
@@ -537,7 +538,7 @@
           { id: 3, name: "Australia", flag: "🇦🇺", song: "Milkshake Man" },
           { id: 4, name: "Austria", flag: "🇦🇹", song: "Wasted Love" },
           { id: 5, name: "Azerbaiyán", flag: "🇦🇿", song: "Run With U" },
-          { id: 6, name: "Bélgica", flag: "🇧🇪", song: "Strobe Lights" },
+          { id: 6, name: "Bélxica", flag: "🇧🇪", song: "Strobe Lights" },
           { id: 7, name: "Croacia", flag: "🇭🇷", song: "Poison Cake" },
           { id: 8, name: "Chipre", flag: "🇨🇾", song: "Shh" },
           { id: 9, name: "Chequia", flag: "🇨🇿", song: "Kiss Kiss Goodbye" },
@@ -545,8 +546,8 @@
           { id: 11, name: "Estonia", flag: "🇪🇪", song: "Espresso Macchiato" },
           { id: 12, name: "Finlandia", flag: "🇫🇮", song: "Ich Komme" },
           { id: 13, name: "Francia", flag: "🇫🇷", song: "Maman" },
-          { id: 14, name: "Georgia", flag: "🇬🇪", song: "Freedom" },
-          { id: 15, name: "Alemania", flag: "🇩🇪", song: "Baller" },
+          { id: 14, name: "XeorXia", flag: "🇬🇪", song: "Freedom" },
+          { id: 15, name: "Alemaña", flag: "🇩🇪", song: "Baller" },
           { id: 16, name: "Grecia", flag: "🇬🇷", song: "Asteromáta" },
           { id: 17, name: "Hungría", flag: "🇭🇺", song: "X" },
           { id: 18, name: "Islandia", flag: "🇮🇸", song: "RÓA" },
@@ -559,18 +560,18 @@
           { id: 25, name: "Malta", flag: "🇲🇹", song: "Serving" },
           { id: 26, name: "Moldavia", flag: "🇲🇩", song: "X" },
           { id: 27, name: "Montenegro", flag: "🇲🇪", song: "Dobrodošli" },
-          { id: 28, name: "Países Bajos", flag: "🇳🇱", song: "C'est la vie" },
+          { id: 28, name: "Países Baixos", flag: "🇳🇱", song: "C'est la vie" },
           { id: 29, name: "Noruega", flag: "🇳🇴", song: "Lighter" },
           { id: 30, name: "Polonia", flag: "🇵🇱", song: "GAJA" },
           { id: 31, name: "Portugal", flag: "🇵🇹", song: "Deslocado" },
-          { id: 32, name: "Rumanía", flag: "🇷🇴", song: "X" },
+          { id: 32, name: "Romanía", flag: "🇷🇴", song: "X" },
           { id: 33, name: "San Marino", flag: "🇸🇲", song: "Tutta l'Italia" },
           { id: 34, name: "Serbia", flag: "🇷🇸", song: "Mila" },
           { id: 35, name: "Eslovenia", flag: "🇸🇮", song: "How Much Time Do We Have Left" },
           { id: 36, name: "España", flag: "🇪🇸", song: "Esa Diva" },
           { id: 37, name: "Suecia", flag: "🇸🇪", song: "Bara Bada Bastu" },
           { id: 38, name: "Suiza", flag: "🇨🇭", song: "Voyage" },
-          { id: 39, name: "Ucrania", flag: "🇺🇦", song: "Bird of Pray" },
+          { id: 39, name: "Ucraína", flag: "🇺🇦", song: "Bird of Pray" },
           { id: 40, name: "Reino Unido", flag: "🇬🇧", song: "What the hell just happened?" }
         ];
 
